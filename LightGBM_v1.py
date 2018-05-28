@@ -17,7 +17,7 @@ import Gather_Data
 from lightgbm import LGBMClassifier
 
 """ Gather data """
-train_X, test_X, train_Y = Gather_Data.ApplicationOnly()
+train_X, test_X, train_Y = Gather_Data.AllData()
 
 clf = LGBMClassifier()
 clf.fit(train_X, train_Y, eval_metric='auc')
