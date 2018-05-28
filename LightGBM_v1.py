@@ -16,7 +16,7 @@ import Gather_Data
 """ Models """
 from lightgbm import LGBMClassifier
 
-""" Gather data """
+""" Gather data: ApplicationOnly, ApplicationBuroAndPrev, AllData """
 train_X, test_X, train_Y = Gather_Data.AllData()
 
 clf = LGBMClassifier()
