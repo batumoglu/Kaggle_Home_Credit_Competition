@@ -14,6 +14,7 @@
 * LightGBM
 * XGBoost
 * CatBoost
+* StackNet
 * Sklearn classification models
 
 ## Working on
