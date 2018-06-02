@@ -21,7 +21,10 @@ Data Preprocess Options:
 * Generate more possible types of train data
 * Generate more features
 
-## QUESTIONS
+## Problems
+* Most of the models generate 0.50 probability, on kaggle finetuned models generate differenet probability
+
+## Questions
 1- In  tree models does it make sense to create dummies or is it better to factorize data
 
 __Links__: 
