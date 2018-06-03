@@ -22,7 +22,7 @@ Data Preprocess Options:
 * Generate more features
 
 ## Problems
-* Most of the models generate 0.50 probability, on kaggle finetuned models generate differenet probability
+* Most of the models generate 0.50 probability, on kaggle finetuned models generate different probability
 
 ## Kaggle Notes
 * Most of kernels used one hot encoding for features
