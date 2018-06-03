@@ -29,6 +29,11 @@ Data Preprocess Options:
 * Some tables are consist of time series so one hot encoding is fastest solution
 * Result my improve if we find better way
 
+## Methods
+1- Generate Pipeline (Gather data, increase models) and develope a data-model matrix
+2- ROC of trained models on trained data should be close to ROC of test data
+3- kFold may help, fit only may have good results but no guarantee to be good on private label
+
 ## Questions
 1- In  tree models does it make sense to create dummies or is it better to factorize data
 
