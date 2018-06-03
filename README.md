@@ -24,6 +24,11 @@ Data Preprocess Options:
 ## Problems
 * Most of the models generate 0.50 probability, on kaggle finetuned models generate differenet probability
 
+## Kaggle Notes
+* Most of kernels used one hot encoding for features
+* Some tables are consist of time series so one hot encoding is fastest solution
+* Result my improve if we find better way
+
 ## Questions
 1- In  tree models does it make sense to create dummies or is it better to factorize data
 
