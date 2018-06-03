@@ -28,6 +28,8 @@ Data Preprocess Options:
 * Most of kernels used one hot encoding for features
 * Some tables are consist of time series so one hot encoding is fastest solution
 * Result my improve if we find better way
+* Method of winner in previous competition:
+https://www.kaggle.com/c/otto-group-product-classification-challenge/discussion/14335
 
 ## Methods
 1- Generate Pipeline (Gather data, increase models) and develope a data-model matrix
