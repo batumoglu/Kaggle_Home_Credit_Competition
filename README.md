@@ -36,6 +36,11 @@ https://www.kaggle.com/c/otto-group-product-classification-challenge/discussion/
 2- ROC of trained models on trained data should be close to ROC of test data
 3- kFold may help, fit only may have good results but no guarantee to be good on private label
 
+## Model Template
+* Should contain kFolds
+* Should have result in train data (AUC on train)
+* Optionally have importance matrix (Data/Model matrix will grow so it will not be easy)
+
 ## Questions
 1- In  tree models does it make sense to create dummies or is it better to factorize data
 
