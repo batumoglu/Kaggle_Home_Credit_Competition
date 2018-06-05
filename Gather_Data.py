@@ -21,8 +21,7 @@ def ApplicationOnly(reduce_mem=True):
         test[f_] = indexer.get_indexer(test[f_])
     
     y = data['TARGET']
-    data.drop(['SK_ID_CURR','TARGET'], axis=1, inplace=True)
-    test.drop(['SK_ID_CURR'], axis=1, inplace=True)
+    data.drop(['TARGET'], axis=1, inplace=True)
     
     if(reduce_mem==True):
         data = reduce_mem_usage(data)

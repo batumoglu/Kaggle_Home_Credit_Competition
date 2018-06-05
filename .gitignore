@@ -105,3 +105,6 @@ venv.bak/
 
 #CatBoost Output
 *.tsv
+
+#Submission Files
+*.csv
