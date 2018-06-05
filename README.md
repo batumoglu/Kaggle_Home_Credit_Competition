@@ -21,9 +21,6 @@ Data Preprocess Options:
 * Generate more possible types of train data
 * Generate more features
 
-## Problems
-* Most of the models generate 0.50 probability, on kaggle finetuned models generate different probability
-
 ## Kaggle Notes
 * Most of kernels used one hot encoding for features
 * Some tables are consist of time series so one hot encoding is fastest solution
