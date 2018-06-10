@@ -18,8 +18,8 @@ import Gather_Data
 """ Models """
 from lightgbm import LGBMClassifier
 
-""" Gather data: ApplicationOnly, ApplicationBuroAndPrev, AllData """
-train_X, test_X, train_Y = Gather_Data.ApplicationOnly(reduce_mem=False)
+""" Gather data: ApplicationOnly, ApplicationBuroAndPrev, AllData, ApplicationBuro """
+train_X, test_X, train_Y = Gather_Data.ApplicationBuro(reduce_mem=False)
 
 oof_preds = np.zeros(train_X.shape[0])
 sub_preds = np.zeros(test_X.shape[0])
@@ -42,12 +42,18 @@ print('AUC : %.3f' % roc_auc_score(train_Y, oof_preds))
 
 sub = pd.read_csv('../input/sample_submission.csv')
 sub['TARGET'] = sub_preds
-sub.to_csv('ApplicationOnly_LightGBM_v1.csv', index=False)
+sub.to_csv('ApplicationBuro_LightGBM_v1.csv', index=False)
 
 """
+ApplicationOnly
 random_state    =1453
 train AUC       =0.756
 test AUC        =0.745
-LigGBM Parameters:
-Null
+LigGBM Parameters: Null
+
+ApplicationBuro
+random_state    =1453
+train AUC       =0.763
+test AUC        =0.754
+LigGBM Parameters: Null
 """
