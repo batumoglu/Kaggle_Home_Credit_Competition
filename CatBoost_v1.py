@@ -42,12 +42,18 @@ print('AUC : %.3f' % roc_auc_score(train_Y, oof_preds))
 
 sub = pd.read_csv('../input/sample_submission.csv')
 sub['TARGET'] = sub_preds
-sub.to_csv('ApplicationOnly_CatBoost_v1.csv', index=False)
+sub.to_csv('ApplicationBuro_CatBoost_v1.csv', index=False)
 
 """
+Application Only
 random_state    =1453
 train AUC       =0.759
 test AUC        =0.744
-CatBoost Parameters:
-Null
+CatBoost Parameters: Null
+
+Application Buro
+random_state    =1453
+train AUC       =0.765
+test AUC        =0.751
+CatBoost Parameters: Null
 """
