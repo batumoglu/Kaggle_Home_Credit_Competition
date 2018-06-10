@@ -18,6 +18,7 @@ def ApplicationBuroBalance(reduce_mem=True):
     buro = pd.read_csv('../input/bureau.csv')
     buro_balance = pd.read_csv('../input/bureau_balance.csv')
     
+    # Handle Buro Balance
     buro_balance.loc[buro_balance['STATUS']=='C', 'STATUS'] = '0'
     buro_balance.loc[buro_balance['STATUS']=='X', 'STATUS'] = '0'
     buro_balance['STATUS'] = buro_balance['STATUS'].astype('int64')
@@ -33,6 +34,7 @@ def ApplicationBuroBalance(reduce_mem=True):
     Buro_Balance_Last['Buro_Balance_Mean'] = Buro_Balance_Last['SK_ID_BUREAU'].map(buro_balance_group['STATUS mean'])
     Buro_Balance_Last['Buro_Balance_Last_Month'] = Buro_Balance_Last['SK_ID_BUREAU'].map(buro_balance_group['MONTHS_BALANCE max'])
     
+    # Handle Buro Data
     def nonUnique(x):
         return x.nunique()
     def modeValue(x):
@@ -101,14 +103,20 @@ def ApplicationBuroBalance(reduce_mem=True):
     Buro_Last['Active_Credit_Card_Limit'] = Buro_Last['SK_ID_CURR'].map(buro_group_active['AMT_CREDIT_SUM_LIMIT sum'])
     Buro_Last['BalanceOnCreditBuro'] = Buro_Last['Active_Debt_Amount'] / Buro_Last['Active_Credit_Amount']
     
-    buro_merged = buro.merge(Buro_Balance_Last, how='left', left_on='SK_ID_BUREAU', right_on='SK_ID_BUREAU')
+    # Merge buro with Buro Balance
+    buro_merged = pd.merge(buro, Buro_Balance_Last, how='left', on='SK_ID_BUREAU')
     buro_merged = buro_merged[['SK_ID_CURR','SK_ID_BUREAU','Buro_Balance_Last_Value','Buro_Balance_Max',
                  'Buro_Balance_Mean','Buro_Balance_Last_Month']]
-    bure_merged_group = buro_merged.groupby('SK_ID_CURR').agg({'mean'})
+    buro_merged_group = buro_merged.groupby('SK_ID_CURR').agg(np.mean)    
+    buro_merged_group.reset_index(inplace=True)
+    buro_merged_group.drop('SK_ID_BUREAU', axis=1, inplace=True)
     
+    # Add Tables to main Data
+    data = data.merge(right=Buro_Last.reset_index(), how='left', on='SK_ID_CURR')
+    test = test.merge(right=Buro_Last.reset_index(), how='left', on='SK_ID_CURR')
     
-    data = data.merge(right=buro_merged.reset_index(), how='left', on='SK_ID_CURR')
-    test = test.merge(right=buro_merged.reset_index(), how='left', on='SK_ID_CURR')
+    data = data.merge(right=buro_merged_group.reset_index(), how='left', on='SK_ID_CURR')
+    test = test.merge(right=buro_merged_group.reset_index(), how='left', on='SK_ID_CURR')    
     
     y = data['TARGET']
     data.drop(['SK_ID_CURR','TARGET'], axis=1, inplace=True)
