@@ -11,6 +11,115 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 from scipy import stats
 
+def ApplicationBuroBalance(reduce_mem=True):
+
+    data = pd.read_csv('../input/application_train.csv')
+    test = pd.read_csv('../input/application_test.csv')
+    buro = pd.read_csv('../input/bureau.csv')
+    buro_balance = pd.read_csv('../input/bureau_balance.csv')
+    
+    buro_balance.loc[buro_balance['STATUS']=='C', 'STATUS'] = '0'
+    buro_balance.loc[buro_balance['STATUS']=='X', 'STATUS'] = '0'
+    buro_balance['STATUS'] = buro_balance['STATUS'].astype('int64')
+    
+    buro_balance_group = buro_balance.groupby('SK_ID_BUREAU').agg({'STATUS':['max','mean'], 'MONTHS_BALANCE':'max'})
+    buro_balance_group.columns = [' '.join(col).strip() for col in buro_balance_group.columns.values]
+    
+    idx = buro_balance.groupby('SK_ID_BUREAU')['MONTHS_BALANCE'].transform(max) == buro_balance['MONTHS_BALANCE']
+    Buro_Balance_Last = buro_balance[idx][['SK_ID_BUREAU','STATUS']]
+    Buro_Balance_Last.rename(columns={'STATUS': 'Buro_Balance_Last_Value'}, inplace=True)
+    
+    Buro_Balance_Last['Buro_Balance_Max'] = Buro_Balance_Last['SK_ID_BUREAU'].map(buro_balance_group['STATUS max'])
+    Buro_Balance_Last['Buro_Balance_Mean'] = Buro_Balance_Last['SK_ID_BUREAU'].map(buro_balance_group['STATUS mean'])
+    Buro_Balance_Last['Buro_Balance_Last_Month'] = Buro_Balance_Last['SK_ID_BUREAU'].map(buro_balance_group['MONTHS_BALANCE max'])
+    
+    def nonUnique(x):
+        return x.nunique()
+    def modeValue(x):
+        return stats.mode(x)[0][0]
+    def totalBadCredit(x):
+        badCredit = 0
+        for value in x:
+            if(value==2 or value==3):
+                badCredit+=1
+        return badCredit
+    def creditOverdue(x):
+        overdue=0
+        for value in x:
+            if(value>0):
+                overdue+=1
+        return overdue
+
+    categorical_feats = [f for f in buro.columns if buro[f].dtype == 'object']    
+    for f_ in categorical_feats:
+        buro[f_], indexer = pd.factorize(buro[f_])
+    
+    categorical_feats = [f for f in data.columns if data[f].dtype == 'object']    
+    for f_ in categorical_feats:
+        data[f_], indexer = pd.factorize(data[f_])
+        test[f_] = indexer.get_indexer(test[f_])
+    
+    # Aggregate Values on All Credits
+    buro_group = buro.groupby('SK_ID_CURR').agg({'SK_ID_BUREAU':'count', 
+                             'AMT_CREDIT_SUM':'sum', 
+                             'AMT_CREDIT_SUM_DEBT':'sum',
+                             'CREDIT_CURRENCY': [nonUnique, modeValue],
+                             'CREDIT_TYPE': [nonUnique, modeValue],
+                             'CNT_CREDIT_PROLONG': 'sum',
+                             'CREDIT_ACTIVE': totalBadCredit,
+                             'CREDIT_DAY_OVERDUE': creditOverdue
+                             })
+    buro_group.columns = [' '.join(col).strip() for col in buro_group.columns.values]
+    
+    # Aggregate Values on Active Credits
+    buro_active = buro.loc[buro['CREDIT_ACTIVE']==1]
+    buro_group_active = buro_active.groupby('SK_ID_CURR').agg({'AMT_CREDIT_SUM': ['sum', 'count'],
+                                           'AMT_CREDIT_SUM_DEBT': 'sum',
+                                           'AMT_CREDIT_SUM_LIMIT': 'sum'
+                                           })
+    buro_group_active.columns = [' '.join(col).strip() for col in buro_group_active.columns.values]
+    
+    # Getting last credit for each user
+    idx = buro.groupby('SK_ID_CURR')['SK_ID_BUREAU'].transform(max) == buro['SK_ID_BUREAU']
+    Buro_Last = buro[idx][['SK_ID_CURR','CREDIT_TYPE','DAYS_CREDIT_UPDATE','DAYS_CREDIT',
+                    'DAYS_CREDIT_ENDDATE','DAYS_ENDDATE_FACT', 'SK_ID_BUREAU']]
+    
+    Buro_Last['Credit_Count'] = Buro_Last['SK_ID_CURR'].map(buro_group['SK_ID_BUREAU count'])
+    Buro_Last['Total_Credit_Amount'] = Buro_Last['SK_ID_CURR'].map(buro_group['AMT_CREDIT_SUM sum'])
+    Buro_Last['Total_Debt_Amount'] = Buro_Last['SK_ID_CURR'].map(buro_group['AMT_CREDIT_SUM_DEBT sum'])
+    Buro_Last['NumberOfCreditCurrency'] = Buro_Last['SK_ID_CURR'].map(buro_group['CREDIT_CURRENCY nonUnique'])
+    Buro_Last['MostCommonCreditCurrency'] = Buro_Last['SK_ID_CURR'].map(buro_group['CREDIT_CURRENCY modeValue'])
+    Buro_Last['NumberOfCreditType'] = Buro_Last['SK_ID_CURR'].map(buro_group['CREDIT_TYPE nonUnique'])
+    Buro_Last['MostCommonCreditType'] = Buro_Last['SK_ID_CURR'].map(buro_group['CREDIT_TYPE modeValue'])
+    Buro_Last['NumberOfCreditProlong'] = Buro_Last['SK_ID_CURR'].map(buro_group['CNT_CREDIT_PROLONG sum'])
+    Buro_Last['NumberOfBadCredit'] = Buro_Last['SK_ID_CURR'].map(buro_group['CREDIT_ACTIVE totalBadCredit'])
+    Buro_Last['NumberOfDelayedCredit'] = Buro_Last['SK_ID_CURR'].map(buro_group['CREDIT_DAY_OVERDUE creditOverdue'])
+    
+    Buro_Last['Active_Credit_Amount'] = Buro_Last['SK_ID_CURR'].map(buro_group_active['AMT_CREDIT_SUM sum'])
+    Buro_Last['Active_Credit_Count'] = Buro_Last['SK_ID_CURR'].map(buro_group_active['AMT_CREDIT_SUM count'])
+    Buro_Last['Active_Debt_Amount'] = Buro_Last['SK_ID_CURR'].map(buro_group_active['AMT_CREDIT_SUM_DEBT sum'])
+    Buro_Last['Active_Credit_Card_Limit'] = Buro_Last['SK_ID_CURR'].map(buro_group_active['AMT_CREDIT_SUM_LIMIT sum'])
+    Buro_Last['BalanceOnCreditBuro'] = Buro_Last['Active_Debt_Amount'] / Buro_Last['Active_Credit_Amount']
+    
+    buro_merged = buro.merge(Buro_Balance_Last, how='left', left_on='SK_ID_BUREAU', right_on='SK_ID_BUREAU')
+    buro_merged = buro_merged[['SK_ID_CURR','SK_ID_BUREAU','Buro_Balance_Last_Value','Buro_Balance_Max',
+                 'Buro_Balance_Mean','Buro_Balance_Last_Month']]
+    bure_merged_group = buro_merged.groupby('SK_ID_CURR').agg({'mean'})
+    
+    
+    data = data.merge(right=buro_merged.reset_index(), how='left', on='SK_ID_CURR')
+    test = test.merge(right=buro_merged.reset_index(), how='left', on='SK_ID_CURR')
+    
+    y = data['TARGET']
+    data.drop(['SK_ID_CURR','TARGET'], axis=1, inplace=True)
+    test.drop(['SK_ID_CURR'], axis=1, inplace=True)
+    
+    if(reduce_mem==True):
+        data = reduce_mem_usage(data)
+        test = reduce_mem_usage(test)
+    
+    return(data, test, y)
+
 def ApplicationBuro(reduce_mem=True):
 
     data = pd.read_csv('../input/application_train.csv')
