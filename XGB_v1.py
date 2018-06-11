@@ -72,7 +72,7 @@ XGB Parameters: Null
 ApplicationBuroBalance
 random_state    =1453
 train AUC       =0.755
-test AUC        =0.756
+test AUC        =0.744
 XGB Parameters: Null
 
 
