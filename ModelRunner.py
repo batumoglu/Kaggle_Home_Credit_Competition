@@ -9,23 +9,24 @@ class TaskScheduler(object):
 
     def _ValidateInputs_(self):
         if not isinstance(self._datasets_, list):
-            raise "ArgumentOutOfRange: Input should be of list type"
+            raise ValueError("ArgumentOutOfRange: Input should be of list type")
         if not isinstance(self._tasks_, list):
-            raise "ArgumentOutOfRange: Input should be of list type"
+            raise ValueError("ArgumentOutOfRange: Input should be of list type")
         
         if(len(self._datasets_) * len(self._tasks_) <= 0):
-            raise "ArgumentOutOfRange: Specified arguments should contain at least one element"
+            raise ValueError("ArgumentOutOfRange: Specified arguments should contain at least one element")
 
         for ds in self._datasets_:
-            if not isinstance(ds, TaskData):
-                raise "ArgumentOutOfRange: Invalid dataset type provided. Expected ModelData type"
+            if not isinstance(ds, tuple):
+                raise ValueError("ArgumentOutOfRange: Invalid dataset type provided. Expected tuple")
         for t in self._tasks_:
             if not isinstance(t, Task):
-                raise "ArgumentOutOfRange: Invalid model type provided. Expected Model type"
+                raise ValueError("ArgumentOutOfRange: Invalid model type provided. Expected Model type")
 
     def Compile(self):
         self._ValidateInputs_()
-        self._schedule_ = list(itertools.product(self._tasks_, self._datasets_))
+        taskDataCollection = [TaskData(d) for d in self._datasets_] 
+        self._schedule_ = list(itertools.product(self._tasks_, taskDataCollection))
         return self._schedule_
 
 class Session(object):
@@ -38,7 +39,7 @@ class Session(object):
         print("                SESSION START                ")
         print("*********************************************")
         for task, data in schedule:
-            task_result = task.Run(data)
+            task_result = task.RunTask(data)
             if self._log_:
                 self._LogResult_(task_result)
 
@@ -53,8 +54,16 @@ class Task(object):
     def __init__(self):
         self._params_ = dict()
         self._scores_ = dict()
+        self._data_ = None
 
-    def Run(self, data):
+    # This function should not be overrided within subclasses
+    def RunTask(self, data):
+        self._data_ = data
+        self.Run()
+        return TaskResult(self)
+
+    # Override this function in subclasses and run your task relevant job here
+    def Run(self):
         pass
     
     def SetId(self, id):
@@ -65,6 +74,10 @@ class Task(object):
 
     def SubmitScore(self, metric, score):
         self._scores_[metric] = score
+
+    @property
+    def Data(self):
+        return self._data_
 
     @property
     def TaskId(self):
@@ -79,10 +92,8 @@ class Task(object):
         return self._scores_
 
 class TaskData(object):
-    def __init__(self, x_train, x_test, y_train):
-        self._xtrain_ = x_train
-        self._xtest_ = x_test
-        self._ytrain_ = y_train
+    def __init__(self, data):
+        self._xtrain_, self._xtest_, self._ytrain_ = data
 
     @property
     def X_Train(self):
