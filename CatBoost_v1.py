@@ -18,8 +18,8 @@ import Gather_Data
 """ Models """
 from catboost import CatBoostClassifier
 
-""" Gather data: ApplicationOnly, ApplicationBuroAndPrev, AllData """
-train_X, test_X, train_Y = Gather_Data.ApplicationOnly(reduce_mem=False)
+""" Gather data: ApplicationOnly, ApplicationBuroAndPrev, AllData, ApplicationBuro, ApplicationBuroBalance"""
+train_X, test_X, train_Y = Gather_Data.AllData(reduce_mem=False)
 
 oof_preds = np.zeros(train_X.shape[0])
 sub_preds = np.zeros(test_X.shape[0])
@@ -42,7 +42,7 @@ print('AUC : %.3f' % roc_auc_score(train_Y, oof_preds))
 
 sub = pd.read_csv('../input/sample_submission.csv')
 sub['TARGET'] = sub_preds
-sub.to_csv('ApplicationBuroBalance_CatBoost_v1.csv', index=False)
+sub.to_csv('AllData_CatBoost_v1.csv', index=False)
 
 """
 Application Only
@@ -61,5 +61,17 @@ Application Buro Balance
 random_state    =1453
 train AUC       =0.765
 test AUC        =0.753
+CatBoost Parameters: Null
+
+ApplicationBuroAndPrev
+random_state    =1453
+train AUC       =0.772
+test AUC        =0.760
+CatBoost Parameters: Null
+
+AllData
+random_state    =1453
+train AUC       =0.778
+test AUC        =0.769
 CatBoost Parameters: Null
 """
