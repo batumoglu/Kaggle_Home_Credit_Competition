@@ -24,7 +24,8 @@ from catboost import CatBoostClassifier
     - AllData
     - ApplicationBuro
     - ApplicationBuroBalance
-    - AllData_v2      """
+    - AllData_v2      
+    - AllData_v3  """
 train_X, test_X, train_Y = Gather_Data.AllData_v3(reduce_mem=False)
 
 oof_preds = np.zeros(train_X.shape[0])

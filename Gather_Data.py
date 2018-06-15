@@ -50,7 +50,7 @@ def AllData_v3(reduce_mem=True):
     for f_ in categorical_feats:
         merged_df[f_], indexer = pd.factorize(merged_df[f_])
                                    
-    merged_df.drop(columns='SK_ID_CURR', axis=1, inplace=True)
+    merged_df.drop('SK_ID_CURR', axis=1, inplace=True)
     
     data = merged_df[:len_train]
     test = merged_df[len_train:]
