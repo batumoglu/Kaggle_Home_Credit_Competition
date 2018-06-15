@@ -31,8 +31,8 @@ def AllData_v2(reduce_mem=True):
     
     data = merged_df[:len_train]
     test = merged_df[len_train:]
-    y = data['TARGET']
-    data.drop(['TARGET'], axis=1, inplace=True)    
+    y = data.pop('TARGET')
+    test.drop(['TARGET'], axis=1, inplace=True)    
     return(data, test, y)    
 
 def ApplicationBuroBalance(reduce_mem=True):

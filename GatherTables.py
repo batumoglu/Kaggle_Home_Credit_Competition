@@ -84,7 +84,7 @@ def handlePrev(app_data):
     merged_df = merged_df.merge(prev_apps_cat_mode, left_on='SK_ID_CURR', right_index=True,
                             how='left', suffixes=['', '_PRVMODE'])
     print('Shape after merging with PREV = {}'.format(merged_df.shape))
-    return app_data
+    return merged_df
 
 def handleCreditCard(app_data):
     credit_card  = pd.read_csv('../input/credit_card_balance.csv')

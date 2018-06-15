@@ -81,5 +81,10 @@ train AUC       =0.777
 test AUC        =0.771
 LigGBM Parameters: Null
 
+AllData_v2
+random_state    =1453
+train AUC       =0.777
+test AUC        =0.777
+LigGBM Parameters: Null
 
 """
