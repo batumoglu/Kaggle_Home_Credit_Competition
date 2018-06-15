@@ -86,4 +86,12 @@ random_state    =1453
 train AUC       =0.778
 test AUC        =0.775
 CatBoost Parameters: Null
+
+AllData_v3_prev_2
+random_state    =1453
+train AUC       =0.779
+test AUC        =0.775
+CatBoost Parameters: Null
+
+
 """
