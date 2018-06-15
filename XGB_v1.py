@@ -75,5 +75,10 @@ train AUC       =0.755
 test AUC        =0.744
 XGB Parameters: Null
 
+AllData_v2
+random_state    =1453
+train AUC       =0.767
+test AUC        =0.775
+XGB Parameters: Null
 
 """
