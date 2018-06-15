@@ -10,124 +10,30 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 from scipy import stats
+import GatherTables
 
-def AllData_v2(reduce_mem=True):
-    """ Taken from James Shepherd Kernel, modified to our version """
-    data = pd.read_csv('../input/application_train.csv')
-    test = pd.read_csv('../input/application_test.csv')
-    prev = pd.read_csv('../input/previous_application.csv')
-    buro = pd.read_csv('../input/bureau.csv')
-    buro_balance = pd.read_csv('../input/bureau_balance.csv')
-    credit_card  = pd.read_csv('../input/credit_card_balance.csv')
-    POS_CASH  = pd.read_csv('../input/POS_CASH_balance.csv')
-    installments = pd.read_csv('../input/installments_payments.csv')
+def AllData_v2(reduce_mem=True):    
+    app_data, len_train = GatherTables.getAppData()
+    app_data = GatherTables.generateAppFeatures(app_data)
     
-    len_train = len(data)
-    app_data = pd.concat([data, test])
+    merged_df = GatherTables.handlePrev(app_data)
+    merged_df = GatherTables.handleCreditCard(merged_df)
+    merged_df = GatherTables.handleBuro(merged_df)
+    merged_df = GatherTables.handleBuroBalance(merged_df)
+    merged_df = GatherTables.handlePosCash(merged_df)
+    merged_df = GatherTables.handleInstallments(merged_df)
     
-    print('Combined train & test input shape before any merging  = {}'.format(app_data.shape))
-    
-    def agg_and_merge(left_df, right_df, agg_method, right_suffix):    
-        agg_df = right_df.groupby('SK_ID_CURR').agg(agg_method)
-        merged_df = left_df.merge(agg_df, left_on='SK_ID_CURR', right_index=True, how='left',
-                                  suffixes=['', '_' + right_suffix + agg_method.upper()])
-        return merged_df
-    
-    def process_dataframe(input_df, encoder_dict=None):
-        categorical_feats = input_df.columns[input_df.dtypes == 'object']
-        for feat in categorical_feats:
-            encoder = LabelEncoder()
-            input_df[feat] = encoder.fit_transform(input_df[feat].fillna('NULL'))
-    
-        return input_df, categorical_feats.tolist(), encoder_dict
-    
-    # Extra features
-    app_data['LOAN_INCOME_RATIO'] = app_data['AMT_CREDIT'] / app_data['AMT_INCOME_TOTAL']
-    app_data['ANNUITY_INCOME_RATIO'] = app_data['AMT_ANNUITY'] / app_data['AMT_INCOME_TOTAL']
-    app_data['ANNUITY LENGTH'] = app_data['AMT_CREDIT'] / app_data['AMT_ANNUITY']
-    app_data['WORKING_LIFE_RATIO'] = app_data['DAYS_EMPLOYED'] / app_data['DAYS_BIRTH']
-    app_data['INCOME_PER_FAM'] = app_data['AMT_INCOME_TOTAL'] / app_data['CNT_FAM_MEMBERS']
-    app_data['CHILDREN_RATIO'] = app_data['CNT_CHILDREN'] / app_data['CNT_FAM_MEMBERS']
-    print('Shape after extra features = {}'.format(app_data.shape))
-    
-    # Prev data
-    aggs = {'SK_ID_CURR': 'count', 'AMT_CREDIT': 'sum'}
-    prev_apps = prev.groupby('SK_ID_CURR').agg(aggs)
-    prev_apps.columns = ['PREV APP COUNT', 'TOTAL PREV LOAN AMT']
-    merged_df = app_data.merge(prev_apps, left_on='SK_ID_CURR', right_index=True, how='left')
-    
-    for agg_method in ['mean', 'max', 'min']:
-        merged_df = agg_and_merge(merged_df, prev_apps, agg_method, 'PRV')
-        
-    prev_app_df, cat_feats, _ = process_dataframe(prev)
-    prev_apps_cat_mode = prev_app_df[cat_feats + ['SK_ID_CURR']].groupby('SK_ID_CURR')\
-                             .agg({k: lambda x: str(x.mode().iloc[0]) for k in cat_feats})
-    merged_df = merged_df.merge(prev_apps_cat_mode, left_on='SK_ID_CURR', right_index=True,
-                            how='left', suffixes=['', '_BAVG'])
-    print('Shape after merging with previous apps num data = {}'.format(merged_df.shape))
-    
-    # Credit card data - categorical features
-    most_recent_index = credit_card.groupby('SK_ID_CURR')['MONTHS_BALANCE'].idxmax()
-    cat_feats = credit_card.columns[credit_card.dtypes == 'object'].tolist()  + ['SK_ID_CURR']
-    merged_df = merged_df.merge(credit_card.loc[most_recent_index, cat_feats], left_on='SK_ID_CURR', 
-                                right_on='SK_ID_CURR', how='left', suffixes=['', '_CCAVG'])    
-    merged_df = merged_df.merge(pd.DataFrame(credit_card['SK_ID_CURR'].value_counts()), left_on='SK_ID_CURR', 
-                                right_index=True, how='left', suffixes=['', '_CNT_CRED_CARD'])
-    print('Shape after merging with credit card data = {}'.format(merged_df.shape))
-    
-    # Credit Bureau Data
-    for agg_method in ['mean', 'max', 'min']:
-        merged_df = agg_and_merge(merged_df, buro, agg_method, 'Buro')    
-    merged_df = merged_df.merge(pd.DataFrame(buro['SK_ID_CURR'].value_counts()), left_on='SK_ID_CURR', 
-                                right_index=True, how='left', suffixes=['', '_CNT_BUREAU'])
-    print('Shape after merging with credit bureau data = {}'.format(merged_df.shape))
-    
-    
-    # Bureau Balance Data
-    most_recent_index = buro_balance.groupby('SK_ID_BUREAU')['MONTHS_BALANCE'].idxmax()
-    buro_balance = buro_balance.loc[most_recent_index, :]
-    merged_df = merged_df.merge(buro_balance, left_on='SK_ID_BUREAU', right_on='SK_ID_BUREAU',
-                                how='left', suffixes=['', '_Buro_Bal'])
-    print('Shape after merging with bureau balance data = {}'.format(merged_df.shape))
-    
-    # Pos Cash Data
-    wm = lambda x: np.average(x, weights=-1/POS_CASH.loc[x.index, 'MONTHS_BALANCE'])
-    f = {'CNT_INSTALMENT': wm, 'CNT_INSTALMENT_FUTURE': wm, 'SK_DPD': wm, 'SK_DPD_DEF':wm}
-    cash_avg = POS_CASH.groupby('SK_ID_CURR')['CNT_INSTALMENT','CNT_INSTALMENT_FUTURE',
-                                                 'SK_DPD', 'SK_DPD_DEF'].agg(f)
-    merged_df = merged_df.merge(cash_avg, left_on='SK_ID_CURR', right_index=True,
-                                how='left', suffixes=['', '_CAVG'])
-    
-    for agg_method in ['mean', 'max', 'min']:
-        merged_df = agg_and_merge(merged_df, POS_CASH, agg_method, 'PosCash')
-        
-    most_recent_index = POS_CASH.groupby('SK_ID_CURR')['MONTHS_BALANCE'].idxmax()
-    cat_feats = POS_CASH.columns[POS_CASH.dtypes == 'object'].tolist()  + ['SK_ID_CURR']
-    merged_df = merged_df.merge(POS_CASH.loc[most_recent_index, cat_feats], left_on='SK_ID_CURR', 
-                                right_on='SK_ID_CURR', how='left', suffixes=['', '_CAVG'])
-    
-    merged_df = merged_df.merge(pd.DataFrame(POS_CASH['SK_ID_CURR'].value_counts()), left_on='SK_ID_CURR', 
-                                right_index=True, how='left', suffixes=['', '_CNT_POS_CASH'])
-    print('Shape after merging with pos cash data = {}'.format(merged_df.shape))
-    
-    # Installments Payments data
-    for agg_method in ['mean', 'max', 'min']:
-        merged_df = agg_and_merge(merged_df, installments, agg_method, 'Installment')   
-        
-    merged_df = merged_df.merge(pd.DataFrame(installments['SK_ID_CURR'].value_counts()), left_on='SK_ID_CURR', 
-                                right_index=True, how='left', suffixes=['', '_CNT_INSTALL'])
-    print('Shape after merging with installments data = {}'.format(merged_df.shape))
-    
-    # Final touch
-    merged_df, categorical_feats, encoder_dict = process_dataframe(input_df=merged_df)
+    categorical_feats = [f for f in merged_df.columns if merged_df[f].dtype == 'object']    
+    for f_ in categorical_feats:
+        merged_df[f_], indexer = pd.factorize(merged_df[f_])
+                                   
     merged_df.drop(columns='SK_ID_CURR', inplace=True)
     
     data = merged_df[:len_train]
     test = merged_df[len_train:]
     y = data['TARGET']
     data.drop(['TARGET'], axis=1, inplace=True)    
-    return(data, test, y)
-    
+    return(data, test, y)    
 
 def ApplicationBuroBalance(reduce_mem=True):
 
