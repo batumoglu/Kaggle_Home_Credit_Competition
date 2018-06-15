@@ -45,6 +45,7 @@ def generateAppFeatures(app_data):
     app_data['WORKING_LIFE_RATIO'] = app_data['DAYS_EMPLOYED'] / app_data['DAYS_BIRTH']
     app_data['INCOME_PER_FAM'] = app_data['AMT_INCOME_TOTAL'] / app_data['CNT_FAM_MEMBERS']
     app_data['CHILDREN_RATIO'] = app_data['CNT_CHILDREN'] / app_data['CNT_FAM_MEMBERS']
+    #appdata_['INCOME_CREDIT_PCT'] = app_data['AMT_INCOME_TOTAL'] / app_data['AMT_CREDIT']
     print('Shape after extra features = {}'.format(app_data.shape))
     return app_data
 
@@ -85,6 +86,54 @@ def handlePrev(app_data):
                             how='left', suffixes=['', '_PRVMODE'])
     print('Shape after merging with PREV = {}'.format(merged_df.shape))
     return merged_df
+
+def handlePrev_v2(app_data):
+
+    prev = pd.read_csv('../input/previous_application.csv')
+    idColumns = ['SK_ID_CURR', 'SK_ID_PREV']
+    cat_feats = [f for f in prev.columns if prev[f].dtype == 'object'] 
+    for f_ in cat_feats:
+        prev[f_], indexer = pd.factorize(prev[f_])
+    cat_feats = cat_feats + ['HOUR_APPR_PROCESS_START','DAYS_DECISION','NFLAG_LAST_APPL_IN_DAY']
+    nonNum_feats = idColumns + cat_feats    
+    num_feats = [f for f in prev.columns if f not in nonNum_feats]
+    
+    # Numeric Features
+    trans =  ['sum', 'mean', 'max', 'min']
+    aggs = {}
+    for feat in num_feats:
+        aggs[feat]=trans
+    aggs['SK_ID_CURR']='count'    
+    
+    prev_numeric_group = prev.groupby('SK_ID_CURR').agg(aggs)
+    prev_numeric_group.columns = [' '.join(col).strip() for col in prev_numeric_group.columns.values]
+    
+    for column in prev_numeric_group.columns:
+        prev_numeric_group = prev_numeric_group.rename(columns={column:'PREV_'+column})
+        
+    app_data = app_data.merge(prev_numeric_group, left_on='SK_ID_CURR', right_index=True, 
+                               how='left', suffixes=['','_PRV'])    
+
+    # Categorical Features
+    trans = modeValue
+    aggs = {}
+    for feat in cat_feats:
+        aggs[feat]=trans
+                                 
+    prev_cat_group = prev.groupby('SK_ID_CURR').agg(aggs)
+
+    for column in prev_cat_group.columns:
+        prev_cat_group = prev_cat_group.rename(columns={column:'PREV_'+column})
+                             
+    app_data = app_data.merge(prev_cat_group, left_on='SK_ID_CURR', right_index=True,
+                            how='left', suffixes=['', '_PRVMODE'])
+    
+    # Last Features
+    most_recent_index = prev.groupby('SK_ID_CURR')['DAYS_DECISION'].idxmax()
+    app_data = app_data.merge(prev.loc[most_recent_index], on='SK_ID_CURR', how='left', suffixes=['','_PRVLAST'])   
+    
+    print('Shape after merging with PREV = {}'.format(app_data.shape))
+    return app_data
 
 def handleCreditCard(app_data):
     credit_card  = pd.read_csv('../input/credit_card_balance.csv')
