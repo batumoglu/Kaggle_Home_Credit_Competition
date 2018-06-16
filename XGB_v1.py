@@ -49,7 +49,7 @@ print('AUC : %.3f' % roc_auc_score(train_Y, oof_preds))
 
 sub = pd.read_csv('../input/sample_submission.csv')
 sub['TARGET'] = sub_preds
-sub.to_csv('AllData_v3_XGB_v1.csv', index=False)
+sub.to_csv('AllData_v3_CC_XGB_v1.csv', index=False)
 
 """
 ApplicationOnly
@@ -92,6 +92,12 @@ AllData_v3_prev_v2
 random_state    =1453
 train AUC       =0.768
 test AUC        =0.775
+XGB Parameters: Null
+
+AllData_v3_cc_v2
+random_state    =1453
+train AUC       =0.769
+test AUC        =0.767
 XGB Parameters: Null
 
 """
