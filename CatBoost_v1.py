@@ -49,7 +49,7 @@ print('AUC : %.3f' % roc_auc_score(train_Y, oof_preds))
 
 sub = pd.read_csv('../input/sample_submission.csv')
 sub['TARGET'] = sub_preds
-sub.to_csv('AllData_v3_Buro_CatBoost_v1.csv', index=False)
+sub.to_csv('AllData_v3_BuroBal_v2_CatBoost_v1.csv', index=False)
 
 """
 Application Only

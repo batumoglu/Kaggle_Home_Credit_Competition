@@ -46,7 +46,7 @@ def AllData_v3(reduce_mem=True):
     merged_df = GatherTables.handlePrev_v2(app_data)
     merged_df = GatherTables.handleCreditCard_v2(merged_df)
     merged_df = GatherTables.handleBuro_v2(merged_df)
-    merged_df = GatherTables.handleBuroBalance(merged_df)
+    merged_df = GatherTables.handleBuroBalance_v2(merged_df)
     merged_df = GatherTables.handlePosCash(merged_df)
     merged_df = GatherTables.handleInstallments(merged_df)
     

@@ -295,12 +295,12 @@ def handleBuro_v2(app_data):
     for feat in cat_feats:
         aggs[feat]=trans
                                  
-    buto_cat_group = buro.groupby('SK_ID_CURR').agg(aggs)
+    buro_cat_group = buro.groupby('SK_ID_CURR').agg(aggs)
 
-    for column in buto_cat_group.columns:
-        buto_cat_group = buto_cat_group.rename(columns={column:'Buro_'+column})
+    for column in buro_cat_group.columns:
+        buro_cat_group = buro_cat_group.rename(columns={column:'Buro_'+column})
                              
-    app_data = app_data.merge(buto_cat_group, left_on='SK_ID_CURR', right_index=True,
+    app_data = app_data.merge(buro_cat_group, left_on='SK_ID_CURR', right_index=True,
                             how='left', suffixes=['', '_BuroMODE'])
     
     # Last Features
@@ -330,6 +330,54 @@ def handleBuroBalance(app_data):
     
     app_data = app_data.merge(Buro_Balance_Last, left_on='SK_ID_CURR', 
                                 right_index=True, how='left', suffixes=['', '_BALANCE_HIST'])
+    
+    print('Shape after merging with Bureau Balance Data = {}'.format(app_data.shape))  
+    return app_data
+
+def handleBuroBalance_v2(app_data):
+    buro_balance = pd.read_csv('../input/bureau_balance.csv')
+    buro = pd.read_csv('../input/bureau.csv')
+    buro = buro[['SK_ID_CURR','SK_ID_BUREAU']]
+    
+    # Add Historical Buro Balance
+    buro_balance.loc[buro_balance['STATUS']=='C', 'STATUS'] = '0'
+    buro_balance.loc[buro_balance['STATUS']=='X', 'STATUS'] = '0'
+    buro_balance['STATUS'] = buro_balance['STATUS'].astype('int64')
+    
+    buro_balance_group = buro_balance.groupby('SK_ID_BUREAU').agg({'STATUS':['max','mean','min','sum'],
+                                             'MONTHS_BALANCE':['count']})
+    buro_balance_group.columns = [' '.join(col).strip() for col in buro_balance_group.columns.values]
+    
+    buro = buro.merge(buro_balance_group, left_on='SK_ID_BUREAU', 
+                                right_index=True, how='left', suffixes=['', '_BALANCE_HIST'])
+    
+    # Add Last Buro Balance
+    most_recent_index = buro_balance.groupby('SK_ID_BUREAU')['MONTHS_BALANCE'].idxmax()
+    Buro_Balance_Last = buro_balance.loc[most_recent_index]    
+    buro = buro.merge(Buro_Balance_Last, on='SK_ID_BUREAU', how='left', suffixes=['', '_BALANCE_LAST'])
+    
+    # All historical data for each credit is now one line
+    # Buro Balance summary merged with all credits in Buro
+    trans =  ['sum', 'mean', 'max', 'min']
+    aggs = {}
+    aggregateColumns = ['STATUS max','STATUS mean','STATUS min','STATUS sum','MONTHS_BALANCE count']
+    for col in aggregateColumns:
+        aggs[col]=trans    
+    
+    BuroBal_AllHist_group = buro.groupby('SK_ID_CURR').agg(aggs)
+    BuroBal_AllHist_group.columns = [' '.join(col).strip() for col in BuroBal_AllHist_group.columns.values]
+            
+    app_data = app_data.merge(BuroBal_AllHist_group, left_on='SK_ID_CURR', right_index=True, 
+                               how='left', suffixes=['','_BBHist'])    
+    # Buro Balance summary merged with active credits in Buro
+    # Posponed for now
+
+    # Buro Balance summary merged with last credit in Buro
+    most_recent_index = buro.groupby('SK_ID_CURR')['SK_ID_BUREAU'].idxmax()
+    buroLast = buro.loc[most_recent_index]   
+    buroLastBeforeMerge = buroLast.drop('SK_ID_BUREAU', axis=1)    
+    
+    app_data = app_data.merge(buroLastBeforeMerge, on='SK_ID_CURR',how='left', suffixes=['','_BuroBalLAST'])      
     
     print('Shape after merging with Bureau Balance Data = {}'.format(app_data.shape))  
     return app_data
