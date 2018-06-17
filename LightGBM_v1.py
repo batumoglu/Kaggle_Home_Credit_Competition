@@ -103,7 +103,7 @@ LigGBM Parameters: Null
 AllData_v2_Buro_v2
 random_state    =1453
 train AUC       =0.781
-test AUC        =0.779
+test AUC        =0.781
 LigGBM Parameters: Null
 
 """
