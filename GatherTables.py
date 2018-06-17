@@ -416,6 +416,42 @@ def handlePosCash(app_data):
     print('Shape after merging with pos cash data = {}'.format(app_data.shape))
     return app_data
 
+def handlePosCash_v2(app_data):
+    POS_CASH  = pd.read_csv('../input/POS_CASH_balance.csv')
+    
+    idColumns = ['SK_ID_CURR', 'SK_ID_PREV']
+    cat_feats = [f for f in POS_CASH.columns if POS_CASH[f].dtype == 'object'] 
+    for f_ in cat_feats:
+        POS_CASH[f_], indexer = pd.factorize(POS_CASH[f_])
+    num_feats = ['SK_DPD','SK_DPD_DEF','CNT_INSTALMENT','CNT_INSTALMENT_FUTURE']
+    
+    # Numeric Features
+    trans =  ['sum', 'mean', 'max', 'min']
+    aggs = {}
+    for feat in num_feats:
+        aggs[feat]=trans
+    aggs['SK_ID_CURR']='count' 
+    aggs['NAME_CONTRACT_STATUS']=modeValue
+    
+    PosCash_Group = POS_CASH.groupby('SK_ID_CURR').agg(aggs)
+    PosCash_Group.columns = [' '.join(col).strip() for col in PosCash_Group.columns.values]
+    
+    for column in PosCash_Group.columns:
+        PosCash_Group = PosCash_Group.rename(columns={column:'PosCash_'+column})
+        
+    app_data = app_data.merge(PosCash_Group, left_on='SK_ID_CURR', right_index=True, 
+                               how='left', suffixes=['','_PosCashAvg'])    
+    
+    # Last Features
+    most_recent_index = POS_CASH.groupby('SK_ID_CURR')['MONTHS_BALANCE'].idxmax()
+    PosCashBeforeMerge = POS_CASH.loc[most_recent_index]
+    PosCashBeforeMerge = PosCashBeforeMerge.drop('SK_ID_PREV', axis=1) 
+    app_data = app_data.merge(POS_CASH.loc[most_recent_index], on='SK_ID_CURR',
+                              how='left', suffixes=['','_PosCashLast'])      
+
+    print('Shape after merging with pos cash data = {}'.format(app_data.shape))
+    return app_data
+
 def handleInstallments(app_data):
     installments = pd.read_csv('../input/installments_payments.csv')
     # Value Counts
