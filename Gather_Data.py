@@ -12,6 +12,10 @@ from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 from scipy import stats
 import GatherTables
 
+def checkTrainTestConsistency(train, test):
+    
+    return (train,test)
+
 def AllData_v2(reduce_mem=True):    
     app_data, len_train = GatherTables.getAppData()
     app_data = GatherTables.generateAppFeatures(app_data)
@@ -41,7 +45,7 @@ def AllData_v3(reduce_mem=True):
     
     merged_df = GatherTables.handlePrev_v2(app_data)
     merged_df = GatherTables.handleCreditCard_v2(merged_df)
-    merged_df = GatherTables.handleBuro(merged_df)
+    merged_df = GatherTables.handleBuro_v2(merged_df)
     merged_df = GatherTables.handleBuroBalance(merged_df)
     merged_df = GatherTables.handlePosCash(merged_df)
     merged_df = GatherTables.handleInstallments(merged_df)

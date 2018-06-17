@@ -248,6 +248,69 @@ def handleBuro(app_data):
     print('Shape after merging with credit bureau data = {}'.format(app_data.shape))
     return app_data
 
+def handleBuro_v2(app_data):
+    buro = pd.read_csv('../input/bureau.csv')
+    idColumns = ['SK_ID_CURR', 'SK_ID_BUREAU']
+    cat_feats = [f for f in buro.columns if buro[f].dtype == 'object'] 
+    for f_ in cat_feats:
+        buro[f_], indexer = pd.factorize(buro[f_])
+    cat_feats = cat_feats + ['DAYS_CREDIT']
+    nonNum_feats = idColumns + cat_feats    
+    num_feats = [f for f in buro.columns if f not in nonNum_feats]
+    
+    # Numeric Features
+    trans =  ['sum', 'mean', 'max', 'min']
+    aggs = {}
+    for feat in num_feats:
+        aggs[feat]=trans
+    aggs['SK_ID_CURR']='count'    
+    
+    buro_numeric_group = buro.groupby('SK_ID_CURR').agg(aggs)
+    buro_numeric_group.columns = [' '.join(col).strip() for col in buro_numeric_group.columns.values]
+    
+    for column in buro_numeric_group.columns:
+        buro_numeric_group = buro_numeric_group.rename(columns={column:'Buro_'+column})
+        
+    app_data = app_data.merge(buro_numeric_group, left_on='SK_ID_CURR', right_index=True, 
+                               how='left', suffixes=['','_BURO'])    
+    
+    # Active Credits
+    buro_active = buro.loc[buro['CREDIT_ACTIVE']==1]
+    buro_group_active = buro_active.groupby('SK_ID_CURR').agg({'AMT_CREDIT_SUM': ['sum', 'count'],
+                                           'AMT_CREDIT_SUM_DEBT': 'sum',
+                                           'AMT_CREDIT_SUM_LIMIT': 'sum'
+                                           })
+    buro_group_active.columns = [' '.join(col).strip() for col in buro_group_active.columns.values]
+    
+    for column in buro_group_active.columns:
+        buro_group_active = buro_group_active.rename(columns={column:'BURO_ACT_'+column})
+    
+    app_data = app_data.merge(buro_group_active, left_on='SK_ID_CURR', 
+                                right_index=True, how='left', suffixes=['', '_BURO_ACT'])
+    
+    # Categorical Features
+    cat_feats = ['CREDIT_CURRENCY','CREDIT_TYPE']
+    trans = modeValue
+    aggs = {}
+    for feat in cat_feats:
+        aggs[feat]=trans
+                                 
+    buto_cat_group = buro.groupby('SK_ID_CURR').agg(aggs)
+
+    for column in buto_cat_group.columns:
+        buto_cat_group = buto_cat_group.rename(columns={column:'Buro_'+column})
+                             
+    app_data = app_data.merge(buto_cat_group, left_on='SK_ID_CURR', right_index=True,
+                            how='left', suffixes=['', '_BuroMODE'])
+    
+    # Last Features
+    most_recent_index = buro.groupby('SK_ID_CURR')['SK_ID_BUREAU'].idxmax()
+    app_data = app_data.merge(buro.loc[most_recent_index], on='SK_ID_CURR',
+                              how='left', suffixes=['','_BuroLAST'])  
+       
+    print('Shape after merging with credit bureau data = {}'.format(app_data.shape))
+    return app_data
+
 def handleBuroBalance(app_data):
     buro_balance = pd.read_csv('../input/bureau_balance.csv')
     
