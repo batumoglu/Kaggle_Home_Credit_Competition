@@ -109,7 +109,13 @@ CatBoost Parameters: Null
 AllData_v2_BuroBal_v2
 random_state    =1453
 train AUC       =0.781
-test AUC        =
+test AUC        =0.776
+LigGBM Parameters: Null
+
+AllData_v2_PosCash_v2
+random_state    =1453
+train AUC       =0.781
+test AUC        =0.778
 LigGBM Parameters: Null
 
 """
