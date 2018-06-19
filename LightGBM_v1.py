@@ -49,7 +49,7 @@ print('AUC : %.3f' % roc_auc_score(train_Y, oof_preds))
 
 sub = pd.read_csv('../input/sample_submission.csv')
 sub['TARGET'] = sub_preds
-sub.to_csv('AllData_v3_PosCash_LightGBM_v1.csv', index=False)
+sub.to_csv('AllData_v3_Installments_LightGBM_v1.csv', index=False)
 
 """
 ApplicationOnly
@@ -116,6 +116,12 @@ AllData_v2_PosCash_v2
 random_state    =1453
 train AUC       =0.781
 test AUC        =0.779
+LigGBM Parameters: Null
+
+AllData_v2_PosCash_v2
+random_state    =1453
+train AUC       =0.782
+test AUC        =0.781
 LigGBM Parameters: Null
 
 """

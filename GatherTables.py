@@ -476,8 +476,8 @@ def handleInstallments_v2(app_data):
     installments = pd.read_csv('../input/installments_payments.csv')
     
     # Fill NaN values --> Delay on payment max 150
-    installments['DAYS_ENTRY_PAYMENT'].fillna(installments['DAYS_INSTALMENT']+150)
-    installments['AMT_PAYMENT'].fillna(0)
+    installments['DAYS_ENTRY_PAYMENT'].fillna(installments['DAYS_INSTALMENT']+150,inplace=True)
+    installments['AMT_PAYMENT'].fillna(0, inplace=True)
     
     # Generate Features
     installments['DaysDelayOnPayment'] = installments['DAYS_ENTRY_PAYMENT']-installments['DAYS_INSTALMENT']

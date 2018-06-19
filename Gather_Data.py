@@ -48,7 +48,7 @@ def AllData_v3(reduce_mem=True):
     merged_df = GatherTables.handleBuro_v2(merged_df)
     merged_df = GatherTables.handleBuroBalance_v2(merged_df)
     merged_df = GatherTables.handlePosCash_v2(merged_df)
-    merged_df = GatherTables.handleInstallments(merged_df)
+    merged_df = GatherTables.handleInstallments_v2(merged_df)
     
     categorical_feats = [f for f in merged_df.columns if merged_df[f].dtype == 'object']    
     for f_ in categorical_feats:
