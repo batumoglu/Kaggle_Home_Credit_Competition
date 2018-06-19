@@ -471,3 +471,32 @@ def handleInstallments(app_data):
 
     print('Shape after merging with installments data = {}'.format(app_data.shape))    
     return app_data
+
+def handleInstallments_v2(app_data):
+    installments = pd.read_csv('../input/installments_payments.csv')
+    
+    # Fill NaN values --> Delay on payment max 150
+    installments['DAYS_ENTRY_PAYMENT'].fillna(installments['DAYS_INSTALMENT']+150)
+    installments['AMT_PAYMENT'].fillna(0)
+    
+    # Generate Features
+    installments['DaysDelayOnPayment'] = installments['DAYS_ENTRY_PAYMENT']-installments['DAYS_INSTALMENT']
+    installments['MissingOnPayment'] = installments['AMT_INSTALMENT']-installments['AMT_PAYMENT']
+        
+    # Numeric Features
+    trans =  ['sum', 'mean', 'max', 'min']
+    num_feats = ['DaysDelayOnPayment','MissingOnPayment','DAYS_INSTALMENT','DAYS_ENTRY_PAYMENT','AMT_INSTALMENT','AMT_PAYMENT']
+    aggs = {}
+    for feat in num_feats:
+        aggs[feat]=trans
+    aggs['SK_ID_CURR']='count' # number of installments
+    aggs['NUM_INSTALMENT_VERSION']=modeValue  # most common installment version
+    # Historical Data
+    installmentsGroup = installments.groupby('SK_ID_CURR').agg(aggs)
+    installmentsGroup.columns = [' '.join(col).strip() for col in installmentsGroup.columns.values]
+
+    app_data = app_data.merge(installmentsGroup, left_on='SK_ID_CURR', 
+                                right_index=True, how='left', suffixes=['', '_INST'])
+
+    print('Shape after merging with installments data = {}'.format(app_data.shape))    
+    return app_data
