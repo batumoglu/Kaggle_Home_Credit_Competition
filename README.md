@@ -46,6 +46,9 @@ https://www.kaggle.com/c/otto-group-product-classification-challenge/discussion/
 * Should have result in train data (AUC on train)
 * Optionally have importance matrix (Data/Model matrix will grow so it will not be easy)
 
+## Similar Competitions
+* https://www.kaggle.com/c/santander-customer-satisfaction/kernels
+
 ## Questions
 1- In  tree models does it make sense to create dummies or is it better to factorize data
 
