@@ -1,14 +1,26 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jun 21 13:23:21 2018
+@author: U2R
+"""
+
+#region Imported modules
 import pandas as pd
 from io import StringIO
 import Gather_Data as gd
+#endregion
 
-blockStartKey = "<!--"
-blockEndKey = "-->\n"
+#region Internal module variables
+_blockStartKey_ = "<!--"
+_blockEndKey_ = "-->\n"
 
-trainSection = "".join([blockStartKey, "TRAIN\n", "[DATAFRAME]", blockEndKey])
-testSection = "".join([blockStartKey, "TEST\n", "[DATAFRAME]", blockEndKey])
-labelSection = "".join([blockStartKey, "LABEL\n", "[DATAFRAME]", blockEndKey])
+_trainSection_ = "".join([_blockStartKey_, "TRAIN\n", "[DATAFRAME]", _blockEndKey_])
+_testSection_ = "".join([_blockStartKey_, "TEST\n", "[DATAFRAME]", _blockEndKey_])
+_labelSection_ = "".join([_blockStartKey_, "LABEL\n", "[DATAFRAME]", _blockEndKey_])
+#endregion
 
+#region Public implementations 
 def Save(data, filename=None):
     # data shall be of type string or DataFrame;
     #   string    : corresponding function name in Gather_Data module
@@ -23,9 +35,9 @@ def Save(data, filename=None):
         raise ValueError("Invalid type provided for param 'data'")
 
     with open(filename,"w") as file:
-        _FlushSection_(file, train, trainSection)
-        _FlushSection_(file, test, testSection)
-        _FlushSection_(file, y, labelSection)
+        _FlushSection_(file, train, _trainSection_)
+        _FlushSection_(file, test, _testSection_)
+        _FlushSection_(file, y, _labelSection_)
 
 def Read(filename):
     with open(filename,"r") as file:
@@ -33,9 +45,9 @@ def Read(filename):
         section = None
         sectionData = ""
         for line in file:
-            if line[:4] == blockStartKey:
+            if line[:4] == _blockStartKey_:
                 section = line[4:len(line)-1]
-            elif blockEndKey in line and section is not None:
+            elif _blockEndKey_ in line and section is not None:
                 data[section] = sectionData
                 section = None
                 sectionData = ""
@@ -46,35 +58,9 @@ def Read(filename):
     test = _StringToDataframe_(data["TEST"])
     label = _StringToDataframe_(data["LABEL"])
     return (train, test, label)
+#endregion
 
-@property
-def AllData_v2():
-    return Read("..\\input\\AllData_v2.data")
-
-@property
-def AllData_v3():
-    return Read("..\\input\\AllData_v3.data")
-
-@property
-def ApplicationBuroBalance():
-    return Read("..\\input\\ApplicationBuroBalance.data")
-
-@property
-def ApplicationBuro():
-    return Read("..\\input\\ApplicationBuro.data")
-
-@property
-def ApplicationOnly():
-    return Read("..\\input\\ApplicationOnly.data")
-
-@property
-def ApplicationBuroAndPrev():
-    return Read("..\\input\\ApplicationBuroAndPrev.data")
-
-@property
-def AllData():
-    return Read("..\\input\\AllData.data")
-
+#region Internal implementations
 def _FlushSection_(stream, data, section):
     dataStr = StringIO() 
     data.to_csv(dataStr)
@@ -83,8 +69,18 @@ def _FlushSection_(stream, data, section):
 def _StringToDataframe_(data):
     strIO = StringIO(data)
     return pd.read_csv(strIO,sep=",")
+#endregion
 
-
+#region Public fields
+# Gather_Data datasets
+AllData_v2              = Read("..\\input\\AllData_v2.data")
+AllData_v3              = Read("..\\input\\AllData_v3.data")
+ApplicationBuroBalance  = Read("..\\input\\ApplicationBuroBalance.data")
+ApplicationBuro         = Read("..\\input\\ApplicationBuro.data")
+ApplicationOnly         = Read("..\\input\\ApplicationOnly.data")
+ApplicationBuroAndPrev  = Read("..\\input\\ApplicationBuroAndPrev.data")
+AllData                 = Read("..\\input\\AllData.data")
+#endregion
 
 # EXAMPLE CODE
 # -------------
