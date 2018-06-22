@@ -1,4 +1,3 @@
-
 import itertools
 
 class TaskScheduler(object):
@@ -17,7 +16,7 @@ class TaskScheduler(object):
             raise ValueError("ArgumentOutOfRange: Specified arguments should contain at least one element")
 
         for ds in self._datasets_:
-            if not isinstance(ds, tuple):
+            if not isinstance(ds, TaskData):
                 raise ValueError("ArgumentOutOfRange: Invalid dataset type provided. Expected tuple")
         for t in self._tasks_:
             if not isinstance(t, Task):
@@ -25,8 +24,7 @@ class TaskScheduler(object):
 
     def Compile(self):
         self._ValidateInputs_()
-        taskDataCollection = [TaskData(d) for d in self._datasets_] 
-        self._schedule_ = list(itertools.product(self._tasks_, taskDataCollection))
+        self._schedule_ = list(itertools.product(self._tasks_, self._datasets_))
         return self._schedule_
 
 class Session(object):
@@ -46,6 +44,7 @@ class Session(object):
     def _LogResult_(self, task_result):
         print("ID\t: " + task_result.Id)
         print("Params\t: " + str(task_result.Parameters))
+        print("Dataset\t: " + task_result.Dataset)
         print("Scores\t: " + str(task_result.Scores))
         print("Task ran for 50 seconds on 08-06-2018 16:21")
         print("---------------------------------------------")
@@ -92,8 +91,9 @@ class Task(object):
         return self._scores_
 
 class TaskData(object):
-    def __init__(self, data):
+    def __init__(self, data, name):
         self._xtrain_, self._xtest_, self._ytrain_ = data
+        self._name_ = name
 
     @property
     def X_Train(self):
@@ -107,6 +107,10 @@ class TaskData(object):
     def Y_Train(self):
         return self._ytrain_
 
+    @property
+    def Name(self):
+        return self._name_
+
 class TaskResult(object):
     def __init__(self, task):
         self._task_ = task
@@ -118,6 +122,10 @@ class TaskResult(object):
     @property
     def Parameters(self):
         return self._task_.Parameters
+
+    @property
+    def Dataset(self):
+        return self._task_.Data.Name
     
     @property
     def Scores(self):

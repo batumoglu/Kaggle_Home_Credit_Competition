@@ -1,7 +1,8 @@
-import ModelRunner as mr
-from ModelRunner import Task
-from ModelRunner import Session
-from ModelRunner import TaskScheduler
+import Dataset
+from Tasks import Task
+from Tasks import TaskData
+from Tasks import Session
+from Tasks import TaskScheduler
 
 class KnnModel(Task):
     def Run(self):
@@ -23,11 +24,7 @@ class KnnModel(Task):
         self.SubmitScore("accuracy",0.76)
         self.SubmitScore("roc_auc",0.68)
 
-x_train = [1,2,3,4,5,6,7]
-x_test = [1,2,3]
-y_train = [0,0,1,0,0,0,1]
-
-dataset = (x_train,x_test,y_train)
+dataset = TaskData(Dataset.AllData_v2,"AllData_v2")
 task = KnnModel()
 
 ts = TaskScheduler([task],[dataset])
