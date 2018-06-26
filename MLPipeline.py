@@ -1,38 +1,42 @@
 import Dataset
-from ModelPool import CatBoost_v1, LightGBM_v1
-from Tasks import TaskData, TaskResult, TaskScheduler, Session
-
-
-allData = TaskData(Dataset.AllData, "AllData")
-allData_v2 = TaskData(Dataset.AllData_v2, "AllData_v2")
-allData_v3 = TaskData(Dataset.AllData_v3, "AllData_v3")
-
-datasets = [allData, allData_v2, allData_v3]
-models = [CatBoost_v1(), LightGBM_v1()]
-
-tasks = TaskScheduler(models, datasets).Compile()
-Session(log=True,log_path="c:\\").Run(tasks)
+from Tasks import TaskScheduler, Session
 
 
 class Pipeline(object):
     def __init__(self):
-        self._models_ = []
-        self._datasets_ = []
+        self._models_ = {}
+        self._datasets_ = {}
 
-    def Model(self, Task):
+    def Model(self, name):
         def ModelDecorator(ModelObject):
-            def ModelWrapper():
-                self._models_.append(ModelObject())
-            return ModelWrapper
+            self._models_[name] = ModelObject
+            return ModelObject
         return ModelDecorator
-    
-    def Dataset(self, TaskData):
+
+    def Dataset(self, name):
         def DatasetDecorator(DatasetObject):
-            def DatasetWrapper():
-                self._datasets_.append(DatasetObject())
-            return DatasetWrapper
+            self._datasets_[name] = DatasetObject
+            return DatasetObject
         return DatasetDecorator
 
-    def Run(self):
-        tasks = TaskScheduler(self._models_, self._datasets_).Compile()
+    def Run(self, model=None, dataset=None):
+        if model is None:
+            models = self._models_.values()
+        else:
+            models = [self._models_[model]]
+
+        if dataset is None:
+            datasets = self._datasets_.values()
+        else:
+            datasets = [self._datasets_[dataset]]
+
+        tasks = TaskScheduler(models, datasets).Compile()
         Session(log=True, log_path="c:\\").Run(tasks)
+
+    @property
+    def Models(self):
+        return self._models_.keys()
+
+    @property
+    def Datasets(self):
+        return self._datasets_.keys()
