@@ -49,6 +49,17 @@ https://www.kaggle.com/c/otto-group-product-classification-challenge/discussion/
 ## Similar Competitions
 * https://www.kaggle.com/c/santander-customer-satisfaction/kernels
 
+## Automated Model Running
+Below components have been implemented to reduce the complexity and time consuming process of model training stage, including data collection, fine tunning and result analysis.
+1- ModelPool module
+   This module serves as a container of all defined models. All models that have been developed to be included in the ML Pipeline should be defined within this module initially.  Model classes must be derived from `Task` object in order for exposing the model ID and the `Run` funcionality to `Session` object and gain access to supplied datasets and result submission functionality. 
+2- Dataset module
+   This module serves as container of all datasets that are to be consumed during training stage. It also allows dataframes to be read/ written from/to disk in a certain file format (.data). Datasets generated on the run (in pandas dataframe format) can be stored on disk for further use in training stage which will also yield to a dramatic reduction in data pre-processing phase.
+3- ML Pipeline
+   This module provides access to the `Run` functionality to start a training `Session` which runs models as configured. Entire training process and the results are reported to a specified file on disk. 
+3- Application module 
+   ML Pipeline is configured and the training session started on this file.
+
 ## Questions
 1- In  tree models does it make sense to create dummies or is it better to factorize data
 
