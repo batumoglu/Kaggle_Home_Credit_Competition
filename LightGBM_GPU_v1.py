@@ -38,9 +38,6 @@ params = {'task'        :'train',
           'gpu_platform_id' :0,
           'gpu_device_id'   :0,
           'gpu_use_dp'      :True,
-          'max_depth'       :5,
-          'num_leaves'      :31,
-          'min_data_in_leaf':20,
           'bagging_fraction':1,
           'feature_fraction':1,
           'lambda_l1'       :0,
@@ -49,8 +46,9 @@ params = {'task'        :'train',
           'learning_rate'   :0.1,
           'sparse_threshold':1}
 
-params['max_depth']         = 4
-params['min_data_in_leaf']  = 25
+params['max_depth']         = 3
+params['min_data_in_leaf']  = 30
+params['num_leaves']        = 8
 params['seed']              = 1453
 params['metric']            ='auc'
 
@@ -62,9 +60,7 @@ for n_fold, (trn_idx, val_idx) in enumerate(folds.split(train_X)):
         
     gbm = lgb.train(params,
                     lgb_train, 
-                    num_boost_round         = 500,
-                    valid_sets              = lgb_eval,
-                    early_stopping_rounds   = 50)
+                    num_boost_round         = 854)
     oof_preds[val_idx] = gbm.predict(train_X.iloc[val_idx])
     sub_preds += gbm.predict(test_X) / folds.n_splits
     gc.collect()
@@ -73,4 +69,15 @@ print('AUC : %.3f' % roc_auc_score(train_Y, oof_preds))
 
 sub = pd.read_csv('../input/sample_submission.csv')
 sub['TARGET'] = sub_preds
-sub.to_csv('AllData_v3_Installments_LightGBM_v1.csv', index=False)
+sub.to_csv('AllData_v3_LightGBM_GridSearch1_LightGBM_v1.csv', index=False)
+
+"""
+AllData_v3
+random_state    =1453
+train AUC       =0.789
+test AUC        =0.792
+LigGBM Parameters: 
+params['max_depth']         = 3
+params['min_data_in_leaf']  = 30
+params['num_leaves']        = 8
+"""

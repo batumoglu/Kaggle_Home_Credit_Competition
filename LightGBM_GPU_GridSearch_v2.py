@@ -55,8 +55,8 @@ lgb_train = lgb.Dataset(train_X, train_Y)
 
 gridsearch_params = [
     (max_depth, min_data_in_leaf)
-    for max_depth in range(3,7)
-    for min_data_in_leaf in range(15,26,5)
+    for max_depth in range(3,8)
+    for min_data_in_leaf in range(10,31,5)
 ]
 
 
@@ -80,7 +80,7 @@ for max_depth, min_data_in_leaf in gridsearch_params:
                         lgb_train, 
                         seed=1453, 
                         nfold=5,
-                        num_boost_round = 500,
+                        num_boost_round = 5000,
                         early_stopping_rounds = 50,
                         metrics='auc')
 
@@ -97,32 +97,32 @@ print("Best params: {}, {}, AUC: {}".format(best_params[0], best_params[1], max_
 """"""
 
 gridsearch_params = [
-    (bagging_fraction, bagging_freq)
-    for bagging_fraction in np.arange(0.5,1.01,0.1)
-    for bagging_freq in range(10,60,10)
+    (lambda_l1, lambda_l2)
+    for lambda_l1 in np.arange(0.0,0.5,0.1)
+    for lambda_l2 in np.arange(0.0,0.5,0.1)
 ]
 
 max_auc = float(0)
 best_params = None
-for bagging_fraction, bagging_freq in gridsearch_params:
-    print("CV with bagging_fraction={}, bagging_freq={}".format(
-                             bagging_fraction,
-                             bagging_freq))
+for lambda_l1, lambda_l2 in gridsearch_params:
+    print("CV with lambda_l1={}, lambda_l2={}".format(
+                             lambda_l1,
+                             lambda_l2))
 
     # Update our parameters
-    params['max_depth'] = 4
-    params['num_leaves'] = 16
-    params['min_data_in_leaf'] = 25
+    params['max_depth'] = 3
+    params['num_leaves'] = 8
+    params['min_data_in_leaf'] = 30
     
-    params['bagging_fraction'] = bagging_fraction
-    params['bagging_freq'] = bagging_freq
+    params['lambda_l1'] = lambda_l1
+    params['lambda_l2'] = lambda_l2
 
     # Run CV
     cv_results = lgb.cv(params,
                         lgb_train, 
                         seed=1453, 
                         nfold=5,
-                        num_boost_round = 500,
+                        num_boost_round = 5000,
                         early_stopping_rounds = 50,
                         metrics='auc')
 
@@ -132,13 +132,19 @@ for bagging_fraction, bagging_freq in gridsearch_params:
     print("\AUC {0[0]:.5f} for {0[1]} rounds".format([mean_auc, boost_rounds]))
     if mean_auc > max_auc:
         max_auc = mean_auc
-        best_params = (bagging_fraction, bagging_freq)
+        best_params = (lambda_l1, lambda_l2)
         
 print("Best params: {}, {}, AUC: {}".format(best_params[0], best_params[1], max_auc))
 
 """
 Best params: 4, 25, AUC: 0.78782  # 300 Boost
 Best params: 4, 25, AUC: 0.78902  # 500 Boost
+
+CV with lambda_l1=0.1, lambda_l2=0.4
+\AUC 0.78959 for 492 rounds
+
+CV with max_depth=3, min_data_in_leaf=30
+\AUC 0.79003 for 854 rounds
 """
 
 
