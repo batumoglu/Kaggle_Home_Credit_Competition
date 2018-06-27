@@ -108,3 +108,6 @@ venv.bak/
 
 #Submission Files
 *.csv
+
+#setting file
+.vscode/

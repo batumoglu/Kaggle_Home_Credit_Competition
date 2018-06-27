@@ -39,12 +39,28 @@ def Save(data, filename=None):
         _FlushSection_(file, test, _testSection_)
         _FlushSection_(file, y, _labelSection_)
 
+def SaveDf(data):
+    gatherDataFunc = getattr(gd, data)
+    train, test, y = gatherDataFunc()
+    train.to_csv("".join([data,".train"]))
+    test.to_csv("".join([data,".test"]))
+    y.to_csv("".join([data,".label"]))
+
+def ReadDf(path, dataset):
+    train = pd.read_csv("".join([path, dataset, ".train"]))
+    test = pd.read_csv("".join([path, dataset, ".test"]))
+    label = pd.read_csv("".join([path, dataset, ".label"]))
+    return (train, test, label)
+
 def Read(filename):
+    line_num = 0
     with open(filename,"r") as file:
         data = {}
         section = None
         sectionData = ""
         for line in file:
+            line_num += 1
+            print("Processing line " + str(line_num))
             if line[:4] == _blockStartKey_:
                 section = line[4:len(line)-1]
             elif _blockEndKey_ in line and section is not None:
@@ -73,13 +89,27 @@ def _StringToDataframe_(data):
 
 #region Public fields
 # Gather_Data datasets
-AllData_v2              = Read("..\\input\\AllData_v2.data")
-AllData_v3              = Read("..\\input\\AllData_v3.data")
-ApplicationBuroBalance  = Read("..\\input\\ApplicationBuroBalance.data")
-ApplicationBuro         = Read("..\\input\\ApplicationBuro.data")
-ApplicationOnly         = Read("..\\input\\ApplicationOnly.data")
-ApplicationBuroAndPrev  = Read("..\\input\\ApplicationBuroAndPrev.data")
-AllData                 = Read("..\\input\\AllData.data")
+AllData_v2              = (0,0,0)
+AllData_v3              = (0,0,0)
+ApplicationBuroBalance  = (0,0,0)
+ApplicationBuro         = (0,0,0)
+ApplicationOnly         = (0,0,0)
+ApplicationBuroAndPrev  = (0,0,0)
+AllData                 = (0,0,0)
+
+def LoadDatasets():
+    # AllData_v2              = Read("..\\input\\AllData_v2.data")
+    AllData_v3              = ReadDf("..\\input\\", "AllData_v3")
+    print("AllData_v3 LOADED!!!!!!!!!!!!!!")
+    train, test, y = AllData_v3
+    print(train.shape)
+    print(test.shape)
+    print(y.shape)
+    # ApplicationBuroBalance  = Read("..\\input\\ApplicationBuroBalance.data")
+    # ApplicationBuro         = Read("..\\input\\ApplicationBuro.data")
+    # ApplicationOnly         = Read("..\\input\\ApplicationOnly.data")
+    # ApplicationBuroAndPrev  = Read("..\\input\\ApplicationBuroAndPrev.data")
+    # AllData                 = Read("..\\input\\AllData.data")
 #endregion
 
 # EXAMPLE CODE
@@ -94,3 +124,6 @@ AllData                 = Read("..\\input\\AllData.data")
 # print(df_train)
 # print(df_test)
 # print(df_label)
+
+if __name__ == "__main__":
+    LoadDatasets()

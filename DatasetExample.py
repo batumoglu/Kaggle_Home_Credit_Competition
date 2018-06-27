@@ -19,7 +19,7 @@ dataset = (df_train,df_test,df_label)
 Dataset.Save(dataset, "DummyDataset.data")
 
 # Read Gather_Data dataset from a file on disk
-alldata_v2 = Dataset.AllData_v3
+alldata_v2 = Dataset.AllData_v2
 alldata_v3 = Dataset.AllData_v3
 applicationBuroBalance = Dataset.ApplicationBuroBalance
 
