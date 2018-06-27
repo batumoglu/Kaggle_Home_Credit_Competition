@@ -1,1 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="static/css/bootstrap.min.css">
+    <script src="static/js/jquery-3.3.1.min.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="jumbotron">
+            <h1>ML Pipeline Service</h1>
+            <p>This tool provides basic functionalities of ML Pipeline to run configured models with defined datasets.</p> 
+        </div>
+        <form>
+            <h2>Defined Models</h2>
+            {% set model_cnt = models|length %}
+            {% set row_cnt = model_cnt // 12 %}
+            {% for i in range(row_cnt + 1) %}
+                <div class="row">
+                    {% if model_cnt >= 12 %}
+                        {% set col_cnt = 12 %}
+                    {% else %}
+                        {% set col_cnt = model_cnt %}
+                    {% endif %}
+                    {% for model in models %}         
+                    <div class="col-lg-{{ col_cnt }}">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ model }}</h5>
+                                <p class="card-text">Select this model to include it in the pipeline</p>
+                                <label class="checkbox-inline"><input type="checkbox" value=""></input></label>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            </br>
+            </br>
+            <h2>Defined Datasets</h2>
+            {% set dataset_cnt = datasets|length %}
+            {% set row_cnt = dataset_cnt // 12 %}
+            {% for i in range(row_cnt + 1) %}
+                <div class="row">
+                    {% if dataset_cnt >= 12 %}
+                        {% set col_cnt = 12 %}
+                    {% else %}
+                        {% set col_cnt = dataset_cnt %}
+                    {% endif %}
+                    {% for dataset in datasets %}         
+                    <div class="col-lg-{{ col_cnt }}">
+                        <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ dataset }}</h5>
+                            <p class="card-text">Select this model to include it in the pipeline</p>
+                            <label class="checkbox-inline"><input type="checkbox" value=""></input></label>
+                        </div>
+                    </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            </br>
+        </form>
+    </div>
 
+
+
+<!--
+    <h1>Test Results</h1>
+    {% for suite in suites %}
+    <div class="testcase">
+        <h2>{{ suite.name }}</h2>
+        <table>
+            <tr class="header">
+                <th class="testcase">TEST CASE</th>
+                <th class="resulth">RESULT</th>
+                <th></th>
+            </tr>
+            {% for test in suite.tests %}
+            <tr class="result">
+                <td>{{ test[0] }}</td>
+                {% if test[1] == "SUCCESS" %}
+                    <td>SUCCESS</td>
+                    <td>
+                        <div class="indicator success"></div>
+                    </td>
+                {% elif test[1] == "FAIL" %}
+                    <td>FAIL</td>
+                    <td>
+                        <div class="indicator fail"></div>
+                    </td>
+                {% elif test[1] == "ERROR" %}
+                    <td>ERROR</td>
+                    <td>
+                        <div class="indicator fail"></div>
+                    </td>
+                {% else %}
+                    <td>SKIPPED</td>
+                    <td>
+                        <div class="indicator skip"></div>
+                    </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+        <div class="footer">
+            <div class="overview">Ran <b>{{ suite.overview.n_tests }}</b> tests in <b>{{ suite.overview.duration }}</b> seconds</div>
+            <div class="overview">Success:<b>{{ suite.overview[0] }}</b>, Fail:<b>{{ suite.overview[1] }}</b>, Skipped:<b>{{ suite.overview[2] }}</b></div>
+        </div>
+    </div>
+    {% endfor %}
+-->
+</body>
+</html>
