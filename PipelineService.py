@@ -13,3 +13,6 @@ def index():
     models = mlapp.pipeline.Models
     datasets = mlapp.pipeline.Datasets
     return GetTemplate("index").render(models=models, datasets=datasets)
+
+if __name__ == "__main__":
+    app.run()
