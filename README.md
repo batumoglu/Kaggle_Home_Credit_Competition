@@ -65,14 +65,26 @@ Below components have been implemented to reduce the complexity and time consumi
       
       ```python
       import Dataset
-      allDatav3 = Dataset.Save("AllData_v3")
+      
+      Dataset.Save("AllData_v3")
       ```
+      
       - Second option is to run `Dataset.py` over command line with `save` switch specifying the dataset name as command line argument.
       
       ```
       python Dataset.py save AllData_v3
       ```
+      
+      **Note:** A function with the name matching the specified `dataset_name` should be defined in Gather_Data.py before saving the dataset. It should be also noted that the (three) files will be created within the \input directory.  
+      
+   * __Read(dataset_name)__: Datasets that have been saved on disk can be loaded using the following code snippet.
    
+      ```python
+      import Dataset
+      
+      allDatav3 = Dataset.Read("AllData_v3")
+      ```
+      
 3- ML Pipeline
 
    This module provides access to the `Run` functionality to start a training `Session` which runs models as configured. Entire training process and the results are reported to a specified file on disk. 
