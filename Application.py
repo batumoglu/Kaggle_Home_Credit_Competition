@@ -19,12 +19,12 @@ def LisghtGBM_v1():
 # Define datasets that are to be included in the ML Pipeline
 @pipeline.Dataset("allDatav2")
 def AllData_v2():
-    return TaskData(Dataset.AllData_v2, "AllData_v2")
+    return TaskData(Dataset.Load("AllData_v2"), "AllData_v2")
 
 @pipeline.Dataset("allDatav3")
 def AllData_v3():
-    return TaskData(Dataset.AllData_v2, "AllData_v3")
+    return TaskData(Dataset.Load("AllData_v3"), "AllData_v3")
 
 @pipeline.Dataset("applicationburo")
 def ApplicationBuro():
-    return TaskData(Dataset.AllData_v2, "ApplicationBuro")
+    return TaskData(Dataset.Load("ApplicationBuro"), "ApplicationBuro")
