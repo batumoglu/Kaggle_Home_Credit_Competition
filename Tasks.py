@@ -1,30 +1,34 @@
 import itertools
 
 class TaskScheduler(object):
-    def __init__(self, tasks, datasets):
-        self._datasets_ = datasets
-        self._tasks_ = tasks
+    def __init__(self):
+        self._datasets_ = []
+        self._tasks_ = []
         self._schedule_ = None
 
-    def _ValidateInputs_(self):
-        if not isinstance(self._datasets_, list):
-            raise ValueError("ArgumentOutOfRange: Input should be of list type")
-        if not isinstance(self._tasks_, list):
-            raise ValueError("ArgumentOutOfRange: Input should be of list type")
-        
-        if(len(self._datasets_) * len(self._tasks_) <= 0):
-            raise ValueError("ArgumentOutOfRange: Specified arguments should contain at least one element")
+    def Add(self, item):
+        if isinstance(item,Task) and item not in self._tasks_:
+            self._tasks_.append(item)
+        elif isinstance(item, TaskData) and item not in self._datasets_:
+            self._datasets_.append(item)
+        self._compile_()
 
-        for ds in self._datasets_:
-            if not isinstance(ds, TaskData):
-                raise ValueError("ArgumentOutOfRange: Invalid dataset type provided. Expected tuple")
-        for t in self._tasks_:
-            if not isinstance(t, Task):
-                raise ValueError("ArgumentOutOfRange: Invalid model type provided. Expected Model type")
+    def Remove(self, item):
+        if isinstance(item,Task) and item in self._tasks_:
+            self._tasks_.remove(item)
+        elif isinstance(item, TaskData) and item in self._datasets_:
+            self._datasets_.remove(item)
+        self._compile_()
 
-    def Compile(self):
-        self._ValidateInputs_()
+    def _compile_(self):
+        if self._schedule_ is not None:
+            del self._schedule_
+
         self._schedule_ = list(itertools.product(self._tasks_, self._datasets_))
+        return self._schedule_
+
+    @property
+    def Schedule(self):
         return self._schedule_
 
 class Session(object):
