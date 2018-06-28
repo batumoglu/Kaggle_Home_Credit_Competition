@@ -9,14 +9,12 @@ class Pipeline(object):
 
     def Model(self, name):
         def ModelDecorator(ModelObject):
-            self._models_[name] = ModelObject
-            return ModelObject
+            self._models_[name] = ModelObject()
         return ModelDecorator
 
     def Dataset(self, name):
         def DatasetDecorator(DatasetObject):
-            self._datasets_[name] = DatasetObject
-            return DatasetObject
+            self._datasets_[name] = DatasetObject()
         return DatasetDecorator
 
     def Run(self, model=None, dataset=None):
@@ -26,7 +24,7 @@ class Pipeline(object):
             models = [self._models_[model]]
 
         if dataset is None:
-            datasets = self._datasets_.values()
+            datasets =  self._datasets_.values()
         else:
             datasets = [self._datasets_[dataset]]
 
@@ -35,8 +33,8 @@ class Pipeline(object):
 
     @property
     def Models(self):
-        return self._models_.keys()
+        return self._models_.values()
 
     @property
     def Datasets(self):
-        return self._datasets_.keys()
+        return self._datasets_.values()

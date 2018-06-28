@@ -66,7 +66,7 @@ class Task(object):
         pass
     
     def SetId(self, id):
-        self._taskId_ = id
+        self._Id_ = id
 
     def SetParam(self, name, value):
         self._params_[name] = value
@@ -74,13 +74,16 @@ class Task(object):
     def SubmitScore(self, metric, score):
         self._scores_[metric] = score
 
+    def SetDescription(self, description):
+        self.__description__ = description
+
     @property
     def Data(self):
         return self._data_
 
     @property
-    def TaskId(self):
-        return self._taskId_
+    def Id(self):
+        return self._Id_
 
     @property
     def Parameters(self):
@@ -89,6 +92,10 @@ class Task(object):
     @property
     def Scores(self):
         return self._scores_
+
+    @property
+    def Description(self):
+        return self.__description__
 
 class TaskData(object):
     def __init__(self, data, name):

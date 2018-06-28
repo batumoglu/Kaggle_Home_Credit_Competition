@@ -25,6 +25,10 @@ class CatBoost_v1(Task):
         # Set unique name for model
         self.SetId("CatBoost_v1")
 
+        # Set description to see in browser
+        self.SetDescription("This model is trained with CatBoost classifier " +
+        " with 5-Fold CV. Predictions are evaluated based on AUC metric.")
+
         # Datasets
         x_train = self.Data.X_Train
         x_test = self.Data.X_Test
@@ -94,5 +98,3 @@ class LightGBM_v1(Task):
         sub = pd.read_csv('../input/sample_submission.csv')
         sub['TARGET'] = sub_preds
         sub.to_csv('AllData_v3_Installments_LightGBM_v1.csv', index=False)
-
-
