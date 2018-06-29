@@ -6,58 +6,117 @@
     <link rel="stylesheet" type="text/css" href="static/css/bootstrap.min.css">
     <script src="static/js/jquery-3.3.1.min.js"></script>
     <script src="static/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="static/js/socket.io.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        socket.on('connect', function(msg) {
+            $('#conn').val(msg);
+        });
+
+        socket.on('itemadded', function(item) {
+            $('<p>ADDED!</p>').appendTo('#card-' + item)
+        });
+    </script>
+    <style>
+        .card-text {
+            word-wrap: break-word;
+            font-size: 12px;
+        }
+
+        .display-title {
+            font-size: 18pt;
+        }
+
+        .display-text {
+            font-size: 11pt;
+        }
+
+        .checkbox-inline {
+            background-color: #36558F;
+            padding: 10px 20px;
+            color: white;
+        }
+
+        .loader {
+            border: 3px solid #f3f3f3; /* Light grey */
+            border-top: 3px solid #36558F; /* Blue */
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <div class="jumbotron">
-            <h1>ML Pipeline Service</h1>
-            <p>This tool provides basic functionalities of ML Pipeline to run configured models with defined datasets.</p> 
+            <h1 class="display-3">ML Pipeline Service</h1></br>
+            <p class="display-text">This tool provides visualization of configured pipeline items including models, datasets and grid search methods.
+            Users are also allowed to create and run sessions based on selected pipeline items.</p> 
         </div>
         <form>
-            <h2>Defined Models</h2>
+            <h2 class="display-4">Defined Models</h2></br>
             {% set model_cnt = models|length %}
             {% set row_cnt = model_cnt // 12 %}
             {% for i in range(row_cnt + 1) %}
-                <div class="row">
-                    {% if model_cnt >= 12 %}
-                        {% set col_cnt = 12 %}
-                    {% else %}
-                        {% set col_cnt = model_cnt %}
-                    {% endif %}
-                    {% for model in models %}         
-                    <div class="col-lg-{{ col_cnt }}">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ model }}</h5>
-                                <p class="card-text">Select this model to include it in the pipeline</p>
-                                <label class="checkbox-inline"><input type="checkbox" value=""></input></label>
+                <div class="container-fluid">
+                    <div class="row">
+                        {% if model_cnt >= 12 %}
+                            {% set col_wd = 1 %}
+                        {% else %}
+                            {% set col_wd = (12/model_cnt)|int %}
+                        {% endif %}
+                        {% for model in models %}
+                        <div class="col-lg-{{ col_wd }}">
+                            <div class="card">
+                                <h5 id="card-{{ model.Name }}" class="card-header display-4 display-title">
+                                    <div class="row">
+                                        <div class="col-lg-6">{{ model.Name }}</div>
+                                        <div class="col-lg-6"><span class="loader float-right"/></div>
+                                    </div>
+                                </h5>
+                                <div class="card-body">
+                                    <p class="card-text display-4 display-text">{{ model.Description }}</p>
+                                    <label class="checkbox-inline display-4 display-text rounded">
+                                        <input type="checkbox" id="{{ model.Name }}" value="" onClick="onAddToSession(this.id)">
+                                            Add to Session
+                                        </input>
+                                    </label>
+                                </div>
                             </div>
                         </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
                 </div>
             {% endfor %}
             </br>
             </br>
-            <h2>Defined Datasets</h2>
+            <h2 class="display-4">Defined Datasets</h2></br>
             {% set dataset_cnt = datasets|length %}
             {% set row_cnt = dataset_cnt // 12 %}
             {% for i in range(row_cnt + 1) %}
                 <div class="row">
                     {% if dataset_cnt >= 12 %}
-                        {% set col_cnt = 12 %}
+                        {% set col_wd = 1 %}
                     {% else %}
-                        {% set col_cnt = dataset_cnt %}
+                        {% set col_wd = (12/dataset_cnt)|int %}
                     {% endif %}
                     {% for dataset in datasets %}         
-                    <div class="col-lg-{{ col_cnt }}">
+                    <div class="col-lg-{{ col_wd }}">
                         <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ dataset }}</h5>
-                            <p class="card-text">Select this model to include it in the pipeline</p>
-                            <label class="checkbox-inline"><input type="checkbox" value=""></input></label>
+                            <h5 class="card-header display-4 display-title">{{ dataset.Name }}</h5>
+                            <div class="card-body">
+                                <p class="card-text display-4 display-text">{{ dataset.Description }}</p>
+                                <label class="checkbox-inline display-4 display-text rounded">
+                                    <input type="checkbox" id="{{ dataset.Name }}" value="" onClick="onAddToSession(this.id)"> Add to Session</input>
+                                </label>
+                            </div>
                         </div>
-                    </div>
                     </div>
                     {% endfor %}
                 </div>
@@ -66,52 +125,12 @@
         </form>
     </div>
 
+    <script>
+        function onAddToSession(item) {
+            socket.emit('addToSession',item);
+        }
+    </script>
 
 
-<!--
-    <h1>Test Results</h1>
-    {% for suite in suites %}
-    <div class="testcase">
-        <h2>{{ suite.name }}</h2>
-        <table>
-            <tr class="header">
-                <th class="testcase">TEST CASE</th>
-                <th class="resulth">RESULT</th>
-                <th></th>
-            </tr>
-            {% for test in suite.tests %}
-            <tr class="result">
-                <td>{{ test[0] }}</td>
-                {% if test[1] == "SUCCESS" %}
-                    <td>SUCCESS</td>
-                    <td>
-                        <div class="indicator success"></div>
-                    </td>
-                {% elif test[1] == "FAIL" %}
-                    <td>FAIL</td>
-                    <td>
-                        <div class="indicator fail"></div>
-                    </td>
-                {% elif test[1] == "ERROR" %}
-                    <td>ERROR</td>
-                    <td>
-                        <div class="indicator fail"></div>
-                    </td>
-                {% else %}
-                    <td>SKIPPED</td>
-                    <td>
-                        <div class="indicator skip"></div>
-                    </td>
-                {% endif %}
-            </tr>
-            {% endfor %}
-        </table>
-        <div class="footer">
-            <div class="overview">Ran <b>{{ suite.overview.n_tests }}</b> tests in <b>{{ suite.overview.duration }}</b> seconds</div>
-            <div class="overview">Success:<b>{{ suite.overview[0] }}</b>, Fail:<b>{{ suite.overview[1] }}</b>, Skipped:<b>{{ suite.overview[2] }}</b></div>
-        </div>
-    </div>
-    {% endfor %}
--->
 </body>
 </html>
