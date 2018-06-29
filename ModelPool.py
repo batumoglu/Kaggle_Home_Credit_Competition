@@ -25,10 +25,6 @@ class CatBoost_v1(Task):
         # Set unique name for model
         self.SetId("CatBoost_v1")
 
-        # Set description to see in browser
-        self.SetDescription("This model is trained with CatBoost classifier " +
-        " with 5-Fold CV. Predictions are evaluated based on AUC metric.")
-
         # Datasets
         x_train = self.Data.X_Train
         x_test = self.Data.X_Test

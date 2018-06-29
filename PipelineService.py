@@ -10,8 +10,13 @@ def GetTemplate(name):
 
 @app.route("/")
 def index():
-    models = mlapp.pipeline.Models
-    datasets = mlapp.pipeline.Datasets
+    models = []
+    datasets = []
+    for item in mlapp.pipeline.Items:
+        if item.Type == "model":
+            models.append(item)
+        elif item.Type == "dataset":
+            datasets.append(item)
     return GetTemplate("index").render(models=models, datasets=datasets)
 
 if __name__ == "__main__":
