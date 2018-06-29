@@ -3,12 +3,16 @@ from Tasks import TaskScheduler, Session
 
 
 class Pipeline(object):
+    ItemAddedEvent = "itemadded"
+    ItemRemovedEvent = "itemremoved"
+    ScheduleChangedEvent = "schedulechanged"
+
     def __init__(self):
         self._models_ = {}
         self._datasets_ = {}
         self._items_ = []
         self._taskscheduler_ = TaskScheduler()
-        self._subscriptions_ = {"itemadded":[], "itemremoved":[], "schedulechanged":[]}
+        self._subscriptions_ = {self.ItemAddedEvent:[], self.ItemRemovedEvent:[], self.ScheduleChangedEvent:[]}
 
     def Model(self, name, description=""):
         def ModelDecorator(ModelObject):
@@ -32,9 +36,9 @@ class Pipeline(object):
             pipeline_item_instance = pipeline_item()
             sch_count = len(self._taskscheduler_.Schedule)
             self._taskscheduler_.Add(pipeline_item_instance)
-            self._notify_("itemadded", pipeline_item_instance)
+            self._notify_(self.ItemAddedEvent, item)
             if len(self._taskscheduler_.Schedule) > sch_count:
-                self._notify_("schedulechanged", self._taskscheduler_.Schedule)
+                self._notify_(self.ScheduleChangedEvent, self._taskscheduler_.Schedule)
         except:
             print("ERROR: An error occured while creating pipeline item instance")
             
@@ -42,9 +46,9 @@ class Pipeline(object):
         try:
             sch_count = len(self._taskscheduler_.Schedule)
             self._taskscheduler_.Remove(item)
-            self._notify_("itemremoved", item)
+            self._notify_(self.ItemRemovedEvent, item)
             if len(self._taskscheduler_.Schedule) < sch_count:
-                self._notify_("schedulechanged", self._taskscheduler_.Schedule)
+                self._notify_(self.ScheduleChangedEvent, self._taskscheduler_.Schedule)
         except:
             print("ERROR: An error occured while removing item from pipeline")
 

@@ -4,7 +4,7 @@ class TaskScheduler(object):
     def __init__(self):
         self._datasets_ = []
         self._tasks_ = []
-        self._schedule_ = None
+        self._schedule_ = []
 
     def Add(self, item):
         if isinstance(item,Task) and item not in self._tasks_:

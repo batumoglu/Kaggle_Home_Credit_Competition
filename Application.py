@@ -1,10 +1,10 @@
 import Dataset
 import ModelPool
 from Tasks import TaskData
-from MLPipeline import Pipeline
+import MLPipeline as mlp
 
 # Initialize ML pipeline
-pipeline = Pipeline()
+pipeline = mlp.Pipeline()
 
 # Define models that are to be included in the ML Pipeline
 @pipeline.Model("catboostv1","This model will be trained using CatBoost classifier " +
@@ -33,4 +33,5 @@ def AllData_v3():
         " downloaded from Kaggle HomeCredit competition.")
 def ApplicationBuro():
     return TaskData(Dataset.Load("ApplicationBuro"), "ApplicationBuro")
+
 
