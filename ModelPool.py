@@ -94,5 +94,3 @@ class LightGBM_v1(Task):
         sub = pd.read_csv('../input/sample_submission.csv')
         sub['TARGET'] = sub_preds
         sub.to_csv('AllData_v3_Installments_LightGBM_v1.csv', index=False)
-
-

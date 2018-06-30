@@ -1,30 +1,34 @@
 import itertools
 
 class TaskScheduler(object):
-    def __init__(self, tasks, datasets):
-        self._datasets_ = datasets
-        self._tasks_ = tasks
-        self._schedule_ = None
+    def __init__(self):
+        self._datasets_ = []
+        self._tasks_ = []
+        self._schedule_ = []
 
-    def _ValidateInputs_(self):
-        if not isinstance(self._datasets_, list):
-            raise ValueError("ArgumentOutOfRange: Input should be of list type")
-        if not isinstance(self._tasks_, list):
-            raise ValueError("ArgumentOutOfRange: Input should be of list type")
-        
-        if(len(self._datasets_) * len(self._tasks_) <= 0):
-            raise ValueError("ArgumentOutOfRange: Specified arguments should contain at least one element")
+    def Add(self, item):
+        if isinstance(item,Task) and item not in self._tasks_:
+            self._tasks_.append(item)
+        elif isinstance(item, TaskData) and item not in self._datasets_:
+            self._datasets_.append(item)
+        self._compile_()
 
-        for ds in self._datasets_:
-            if not isinstance(ds, TaskData):
-                raise ValueError("ArgumentOutOfRange: Invalid dataset type provided. Expected tuple")
-        for t in self._tasks_:
-            if not isinstance(t, Task):
-                raise ValueError("ArgumentOutOfRange: Invalid model type provided. Expected Model type")
+    def Remove(self, item):
+        if isinstance(item,Task) and item in self._tasks_:
+            self._tasks_.remove(item)
+        elif isinstance(item, TaskData) and item in self._datasets_:
+            self._datasets_.remove(item)
+        self._compile_()
 
-    def Compile(self):
-        self._ValidateInputs_()
+    def _compile_(self):
+        if self._schedule_ is not None:
+            del self._schedule_
+
         self._schedule_ = list(itertools.product(self._tasks_, self._datasets_))
+        return self._schedule_
+
+    @property
+    def Schedule(self):
         return self._schedule_
 
 class Session(object):
@@ -66,7 +70,7 @@ class Task(object):
         pass
     
     def SetId(self, id):
-        self._taskId_ = id
+        self._Id_ = id
 
     def SetParam(self, name, value):
         self._params_[name] = value
@@ -74,13 +78,16 @@ class Task(object):
     def SubmitScore(self, metric, score):
         self._scores_[metric] = score
 
+    def SetDescription(self, description):
+        self.__description__ = description
+
     @property
     def Data(self):
         return self._data_
 
     @property
-    def TaskId(self):
-        return self._taskId_
+    def Id(self):
+        return self._Id_
 
     @property
     def Parameters(self):
@@ -89,6 +96,10 @@ class Task(object):
     @property
     def Scores(self):
         return self._scores_
+
+    @property
+    def Description(self):
+        return self.__description__
 
 class TaskData(object):
     def __init__(self, data, name):
