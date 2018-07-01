@@ -27,6 +27,8 @@ class Pipeline(object):
         return DatasetDecorator
 
     def Add(self, item):
+        import time
+        time.sleep(2)
         if item in self._models_:
             pipeline_item = self._models_[item]
         elif item in self._datasets_:

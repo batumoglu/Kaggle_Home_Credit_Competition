@@ -21,10 +21,10 @@ from lightgbm import LGBMClassifier
 
 # Define CatBoost_v1 model to run it on model runner framework 
 class CatBoost_v1(Task):
-    def Run(self):
-        # Set unique name for model
-        self.SetId("CatBoost_v1")
+    def __init__(self, name):
+        Task.__init__(self, name)
 
+    def Run(self):
         # Datasets
         x_train = self.Data.X_Train
         x_test = self.Data.X_Test
@@ -60,9 +60,10 @@ class CatBoost_v1(Task):
 
 # Define LightGBM_v1 model to run it on model runner framework 
 class LightGBM_v1(Task):
-    def Run(self):
-        self.SetId("LightGBM_v1")
+    def __init__(self, name):
+        Task.__init__(self, name)
 
+    def Run(self):
         # Datasets
         x_train = self.Data.X_Train
         x_test = self.Data.X_Test

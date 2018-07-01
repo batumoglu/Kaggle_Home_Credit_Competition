@@ -2,29 +2,34 @@ import itertools
 
 class TaskScheduler(object):
     def __init__(self):
-        self._datasets_ = []
-        self._tasks_ = []
+        self._datasets_ = {}
+        self._tasks_ = {}
         self._schedule_ = []
 
     def Add(self, item):
-        if isinstance(item,Task) and item not in self._tasks_:
-            self._tasks_.append(item)
-        elif isinstance(item, TaskData) and item not in self._datasets_:
-            self._datasets_.append(item)
+        if isinstance(item,Task) and item.Name not in self._tasks_:
+            self._tasks_[item.Name] = item
+        elif isinstance(item, TaskData) and item.Name not in self._datasets_:
+            self._datasets_[item.Name] = item
         self._compile_()
 
     def Remove(self, item):
-        if isinstance(item,Task) and item in self._tasks_:
-            self._tasks_.remove(item)
-        elif isinstance(item, TaskData) and item in self._datasets_:
-            self._datasets_.remove(item)
+        if isinstance(item,Task) and item.Name in self._tasks_:
+            del self._tasks_[item.Name]
+        elif isinstance(item, TaskData) and item.Name in self._datasets_:
+            del self._datasets_[item.Name]
+        elif isinstance(item,str):
+            if item in self._tasks_:
+                del self._tasks_[item]
+            elif item in self._datasets_:
+                del self._datasets_[item]
         self._compile_()
 
     def _compile_(self):
         if self._schedule_ is not None:
             del self._schedule_
 
-        self._schedule_ = list(itertools.product(self._tasks_, self._datasets_))
+        self._schedule_ = list(itertools.product(self._tasks_.values(), self._datasets_.values()))
         return self._schedule_
 
     @property
@@ -54,10 +59,11 @@ class Session(object):
         print("---------------------------------------------")
 
 class Task(object):
-    def __init__(self):
+    def __init__(self, name):
         self._params_ = dict()
         self._scores_ = dict()
         self._data_ = None
+        self._name_ = name
 
     # This function should not be overrided within subclasses
     def RunTask(self, data):
@@ -69,8 +75,8 @@ class Task(object):
     def Run(self):
         pass
     
-    def SetId(self, id):
-        self._Id_ = id
+    def SetName(self, name):
+        self._name_ = name
 
     def SetParam(self, name, value):
         self._params_[name] = value
@@ -86,8 +92,8 @@ class Task(object):
         return self._data_
 
     @property
-    def Id(self):
-        return self._Id_
+    def Name(self):
+        return self._name_
 
     @property
     def Parameters(self):

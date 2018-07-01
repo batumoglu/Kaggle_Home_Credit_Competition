@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="static/css/bootstrap.min.css">
+    <script src="static/js/jquery-3.3.1.min.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="static/js/socket.io.js"></script>
+    <script type="text/javascript" src="static/js/pipelineservice.js"></script>
+    <style>
+        .card {
+            margin: 5px;
+        }
+
+        .card-text {
+            word-wrap: break-word;
+            font-size: 12px;
+        }
+
+        .display-title {
+            font-size: 18pt;
+        }
+
+        .display-text {
+            font-size: 11pt;
+        }
+
+        .checkbox-inline {
+            background-color: #36558F;
+            padding: 10px 20px;
+            color: white;
+        }
+
+        .loader {
+            border: 3px solid #f3f3f3; /* Light grey */
+            border-top: 3px solid #36558F; /* Blue */
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .checkmark {
+            background-image: url('static/img/glyphicons-ok.png');
+            background-repeat: no-repeat;
+        }
+
+        .item-status {
+            min-width: 30px;
+            min-height: 30px;
+        }
+
+        .jumbotron {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        Hi there! Here are {{job_id}} scores...
+    </div>
+</body>
+</html>
