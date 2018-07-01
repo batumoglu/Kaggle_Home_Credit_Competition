@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import KFold
+import Dataset
 import gc
 
 """ Custom functions for data gathering """
@@ -26,7 +27,7 @@ from xgboost import XGBClassifier
     - ApplicationBuroBalance
     - AllData_v2      
     - AllData_v3  """
-train_X, test_X, train_Y = Gather_Data.AllData_v3(reduce_mem=False)
+train_X, test_X, train_Y = Dataset.Load('ApplicationOnly')
 
 oof_preds = np.zeros(train_X.shape[0])
 sub_preds = np.zeros(test_X.shape[0])
