@@ -11,6 +11,7 @@ import numpy as np
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import GridSearchCV
 import time
+import Gather_Data
 
 """ Custom functions for data gathering """
 import Dataset
@@ -20,7 +21,9 @@ from xgboost import XGBClassifier
 
 start = time.time()
 # Data related transactions
-train_X, test_X, train_Y = Dataset.Load('ApplicationOnly')
+train_X, test_X, train_Y = Dataset.Load('AllData')
+
+train_X, test_X, train_Y = Gather_Data.ApplicationOnly(reduce_mem=False)
 
 # Step 1
 estimator = XGBClassifier(random_state      = 1453,
@@ -43,7 +46,7 @@ print(gsearch.best_params_)
 print(gsearch.best_score_)
 
 # Step 2
-estimator = xgb.XGBClassifier(objective     ='binary',
+estimator = XGBClassifier(objective     ='binary',
                               metric        ='auc',
                               seed          = 1453,
                               max_depth     = gsearch.best_params_['max_depth'],
@@ -65,7 +68,7 @@ print(gsearch.best_params_)
 print(gsearch.best_score_)
 
 # Step 3
-estimator = xgb.XGBClassifier(objective     ='binary',
+estimator = XGBClassifier(objective     ='binary',
                               metric        ='auc',
                               seed          = 1453,
                               max_depth     = gsearch.best_params_['max_depth'],
@@ -89,7 +92,7 @@ print(gsearch.best_params_)
 print(gsearch.best_score_)
 
 # Step 4
-estimator = xgb.XGBClassifier(objective     ='binary',
+estimator = XGBClassifier(objective     ='binary',
                               metric        ='auc',
                               seed          = 1453,
                               max_depth     = gsearch.best_params_['max_depth'],

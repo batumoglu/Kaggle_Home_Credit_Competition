@@ -39,7 +39,7 @@ def Save(dataset_name):
     print("Writing test dataset to disk...")
     test.to_csv(_testfilename_.replace("[filename]", dataset_name), index=False)
     print("Writing labels to disk...")
-    y.to_csv(_labelfilename_.replace("[filename]", dataset_name), index=False)
+    y.to_csv(_labelfilename_.replace("[filename]", dataset_name), index=False, header=True)
     print("Dataset files have been successfully created...")
 
 
