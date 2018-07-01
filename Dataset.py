@@ -54,7 +54,7 @@ def Load(dataset_name):
     except:
         train, test, label = None, None, None
         print("ERROR: An error occured while loading dataset from file.")
-    return (train, test, label)
+    return (train, test, label["TARGET"])
 
 #endregion
 
