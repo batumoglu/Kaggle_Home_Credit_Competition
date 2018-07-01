@@ -11,23 +11,19 @@ import numpy as np
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import GridSearchCV
 import time
-import Gather_Data
 
 """ Custom functions for data gathering """
 import Dataset
 
 """ Models """
-from xgboost import XGBClassifier
+from xgboost.sklearn import XGBClassifier
 
 start = time.time()
 # Data related transactions
-train_X, test_X, train_Y = Dataset.Load('AllData')
-
-train_X, test_X, train_Y = Gather_Data.ApplicationOnly(reduce_mem=False)
+train_X, test_X, train_Y = Dataset.Load('ApplicationOnly')
 
 # Step 1
-estimator = XGBClassifier(random_state      = 1453,
-                          eval_metric  = 'auc')
+estimator = XGBClassifier(base_score=0.5)
 
 param_test = {
         'max_depth':range(3,4,1),
