@@ -12,9 +12,9 @@ import Gather_Data as gd
 #endregion
 
 #region Internal module variables
-_trainfilename_ = "input/[filename].train"
-_testfilename_ = "input/[filename].test"
-_labelfilename_ = "input/[filename].label"
+_trainfilename_ = "../input/[filename].train"
+_testfilename_ = "../input/[filename].test"
+_labelfilename_ = "../input/[filename].label"
 #endregion
 
 #region Public implementations 
