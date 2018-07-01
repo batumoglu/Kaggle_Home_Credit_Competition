@@ -8,7 +8,7 @@ Created on Thu Jun 21 13:23:21 2018
 #region Imported modules
 import pandas as pd
 from io import StringIO
-# import Gather_Data as gd
+import Gather_Data as gd
 #endregion
 
 #region Internal module variables
@@ -27,7 +27,6 @@ def Save(dataset_name):
         No return value(s)
     '''
     if isinstance(dataset_name,str):
-        gd=None
         print("Searching " + dataset_name + " dataset...")
         gatherDataFunc = getattr(gd, dataset_name)
         print("Loading " + dataset_name + " dataset...")

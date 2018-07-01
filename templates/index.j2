@@ -14,7 +14,8 @@
         });
 
         socket.on('itemadded', function(item) {
-            $('<p>ADDED!</p>').appendTo('#card-' + item)
+            $('#' + item + '-state').removeClass('loader')
+            $('#' + item + '-state').addClass('checkmark')
         });
     </script>
     <style>
@@ -50,6 +51,16 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .checkmark {
+            background-image: url('static/img/glyphicons-ok.png');
+            background-repeat: no-repeat;
+        }
+
+        .item-status {
+            min-width: 30px;
+            min-height: 30px;
+        }
     </style>
 </head>
 <body>
@@ -77,7 +88,7 @@
                                 <h5 id="card-{{ model.Name }}" class="card-header display-4 display-title">
                                     <div class="row">
                                         <div class="col-lg-6">{{ model.Name }}</div>
-                                        <div class="col-lg-6"><span class="loader float-right"/></div>
+                                        <div class="col-lg-6"><div id="{{ model.Name }}-state" class="item-status float-right"></div></div>
                                     </div>
                                 </h5>
                                 <div class="card-body">
@@ -127,6 +138,8 @@
 
     <script>
         function onAddToSession(item) {
+            $('#' + item + '-state').removeClass('checkmark')
+            $('#' + item + '-state').addClass('loader')
             socket.emit('addToSession',item);
         }
     </script>
