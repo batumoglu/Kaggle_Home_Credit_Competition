@@ -8,6 +8,9 @@ Dataset.Save("AllData")
 Dataset.Save("AllData_v2")
 Dataset.Save("AllData_v3")
 Dataset.Save("ApplicationBuroBalance")
+Dataset.Save("ApplicationBuro")
+Dataset.Save("ApplicationOnly")
+Dataset.Save("ApplicationBuroAndPrev")
 
 # Save specified dataset to a file on disk
 # Filename argument must be specified

@@ -13,14 +13,14 @@ from sklearn.model_selection import GridSearchCV
 import time
 
 """ Custom functions for data gathering """
-import Gather_Data
+import Dataset
 
 """ Models """
 from xgboost import XGBClassifier
 
 start = time.time()
 # Data related transactions
-train_X, test_X, train_Y = Gather_Data.ApplicationOnly(reduce_mem=False)
+train_X, test_X, train_Y = Dataset.Load('ApplicationOnly')
 
 # Step 1
 estimator = XGBClassifier(random_state      = 1453,

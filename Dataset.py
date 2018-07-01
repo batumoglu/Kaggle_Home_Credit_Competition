@@ -12,9 +12,9 @@ import Gather_Data as gd
 #endregion
 
 #region Internal module variables
-_trainfilename_ = "input/[filename].train"
-_testfilename_ = "input/[filename].test"
-_labelfilename_ = "input/[filename].label"
+_trainfilename_ = "../input/[filename].train"
+_testfilename_ = "../input/[filename].test"
+_labelfilename_ = "../input/[filename].label"
 #endregion
 
 #region Public implementations 
@@ -35,11 +35,11 @@ def Save(dataset_name):
         raise ValueError("No matching dataset function found in Gather_Data")
 
     print("Writing train dataset to disk...")
-    train.to_csv(_trainfilename_.replace("[filename]", dataset_name))
+    train.to_csv(_trainfilename_.replace("[filename]", dataset_name), index=False)
     print("Writing test dataset to disk...")
-    test.to_csv(_testfilename_.replace("[filename]", dataset_name))
+    test.to_csv(_testfilename_.replace("[filename]", dataset_name), index=False)
     print("Writing labels to disk...")
-    y.to_csv(_labelfilename_.replace("[filename]", dataset_name))
+    y.to_csv(_labelfilename_.replace("[filename]", dataset_name), index=False)
     print("Dataset files have been successfully created...")
 
 
