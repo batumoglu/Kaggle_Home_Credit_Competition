@@ -1,4 +1,7 @@
 import itertools
+import json
+from datetime import datetime
+from time import time
 
 class TaskScheduler(object):
     def __init__(self):
@@ -147,3 +150,39 @@ class TaskResult(object):
     @property
     def Scores(self):
         return self._task_.Scores
+    
+ class Result(object):
+    def __init__(self, metrics):
+        self._metrics_ = metrics
+        self._results_ = {}
+
+    def Submit(self, metrics, params, scores):
+        timestamp = datetime.fromtimestamp(time()).strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+        self._results_[timestamp] = {}
+        for metric in self._metrics_:
+            metric_idx = self._getindex_(metrics, metric)
+            if metric_idx >= 0:
+                self._results_[timestamp][metric] = {"params":params[metric_idx], "score":scores[metric_idx]}
+            else:
+                self._results_[timestamp][metric] = {"params":{}, "score":0}
+
+    def ToJson(self):
+        return json.dumps(self.Submissions)
+
+    def _getindex_(self, lst, val):
+        try:
+            return lst.index(val)
+        except:
+            return -1
+
+    @property
+    def Submissions(self):
+        scores = {}
+        for score in self._results_.values():
+            for metric in score.keys():
+                if metric in scores:
+                    scores[metric].append(score[metric])
+                else:
+                    scores[metric] = [score[metric]]
+
+        return {"timestamps":list(self._results_.keys()), "scores":scores}
