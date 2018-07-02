@@ -33,23 +33,17 @@ params = {'loss_function'   :'Logloss',
 # Calculate cv
 cv_results = cat.cv(pool        =cat_train,
                     params      =params,
-                    iterations  =1000,
+                    iterations  =10,
                     fold_count  =5,
                     logging_level='Verbose')
 
 # Get best number of iterations
-num_boost_rounds = len(cv_results['auc-mean'])
+num_boost_rounds = len(cv_results)
 print(num_boost_rounds)
 
 # Generate model by best iteration
-model   = lgb.train(params=params,
-                    train_set=lgb_train,
+model   = cat.train(params=params,
+                    pool=cat_train,
                     num_boost_round=num_boost_rounds,
-                    verbose_eval=1)
+                    logging_level='Verbose')
 
-# Plot importance
-lgb.plot_importance(model,
-                    max_num_features=20)
-
-# Plot tree
-lgb.plot_tree(model)
