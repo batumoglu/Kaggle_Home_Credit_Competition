@@ -59,6 +59,9 @@ sub_preds = model.predict(dtest)
 sub = pd.read_csv('../input/sample_submission.csv')
 sub['TARGET'] = sub_preds
 sub.to_csv('AllData_v3_XGB_CV_v1.csv', index=False)
+"""
+num_boost_round=42, train-auc:0.865, valid-auc:0.772, test-auc: 0.771
+"""
 
 """
 # Plot importance

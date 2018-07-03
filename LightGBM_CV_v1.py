@@ -14,7 +14,7 @@ import lightgbm as lgb
 import graphviz
 
 # Gather Data
-train_X, test_X, train_Y = Dataset.Load('ApplicationOnly')
+train_X, test_X, train_Y = Dataset.Load('AllData_v3')
 
 # Convert data to DMatrix
 lgb_train = lgb.Dataset(train_X, train_Y)
@@ -51,9 +51,21 @@ model   = lgb.train(params=params,
                     num_boost_round=num_boost_rounds,
                     verbose_eval=1)
 
+sub_preds = model.predict(test_X)
+sub = pd.read_csv('../input/sample_submission.csv')
+sub['TARGET'] = sub_preds
+sub.to_csv('AllData_v3_LightGBM_CV_v1.csv', index=False)
+
+"""
+num_boost_round=138, valid-auc:0.784, test-auc: 0.782
+"""
+
+"""
 # Plot importance
 lgb.plot_importance(model,
                     max_num_features=20)
 
 # Plot tree
 lgb.plot_tree(model)
+
+"""
