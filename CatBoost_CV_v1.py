@@ -11,10 +11,9 @@ from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import KFold
 import Dataset
 import catboost as cat
-import graphviz
 
 # Gather Data
-train_X, test_X, train_Y = Dataset.Load('ApplicationOnly')
+train_X, test_X, train_Y = Dataset.Load('AllData_v3')
 
 # Convert data to DMatrix
 cat_train = cat.Pool(train_X, train_Y)
@@ -33,7 +32,7 @@ params = {'loss_function'   :'Logloss',
 # Calculate cv
 cv_results = cat.cv(pool        =cat_train,
                     params      =params,
-                    iterations  =10,
+                    iterations  =2000,
                     fold_count  =5,
                     logging_level='Verbose')
 
@@ -47,3 +46,8 @@ model   = cat.train(params=params,
                     num_boost_round=num_boost_rounds,
                     logging_level='Verbose')
 
+#Prediction
+sub_preds = model.predict(cat_test)
+sub = pd.read_csv('../input/sample_submission.csv')
+sub['TARGET'] = sub_preds
+sub.to_csv('AllData_v3_CatBoost_CV_v1.csv', index=False)
