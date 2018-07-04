@@ -1,4 +1,5 @@
 import copy
+import itertools
 import lightgbm as lgb
 from joblib import Parallel, delayed
 
@@ -23,6 +24,7 @@ class LGBM(object):
 
     def _create_cv_params_(self, param_grid, cv_params):
         param_sets = None
+        self._create_grid_space_(param_grid)
         for param_name, param_values in iter(param_grid.items()):
             if param_sets is None:
                 param_sets = [copy.deepcopy(self._params_) for i in range(len(param_values))]
@@ -30,4 +32,10 @@ class LGBM(object):
                 param_set[param_name] = param_values[idx]
         return [self._build_cv_params_(cv_params, param_set) for param_set in param_sets]
 
-
+    def _create_grid_space_(self, param_grid):
+        value_space =  list(itertools.product(*param_grid.values()))
+        value_matrix = [list(i) for i in zip(*value_space)]
+        key_idx = -1
+        for param_name in param_grid:
+            key_idx += 1
+            param_grid[param_name] = value_matrix[key_idx]
