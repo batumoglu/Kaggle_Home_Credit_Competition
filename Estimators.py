@@ -10,7 +10,8 @@ class LGBM(object):
     def gridsearch(self, param_grid, cv_params):
         cv_params_grid = self._create_cv_params_(param_grid, cv_params)
         gs_cv_results = Parallel(n_jobs=-1)(delayed(self._cv_)(param_set) for param_set in cv_params_grid)
-        return gs_cv_results
+        gs_cv_results = sorted(gs_cv_results, key = lambda x : x[0])
+        return {"best" : gs_cv_results[-1], "all" : gs_cv_results}
 
     def _cv_(self, cv_params):
         cv_results = lgb.cv(**cv_params)
