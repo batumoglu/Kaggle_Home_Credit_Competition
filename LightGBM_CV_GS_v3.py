@@ -45,8 +45,9 @@ lgbm = LGBM(params)
 gs_results = lgbm.gridsearch(param_grid, cv_params)
 
 # best score of explored grids returned with corresponding parameter set
-# in this case results shall include 5 scores
-print(gs_results)
+# in this case results shall include 9 scores
+print(gs_results["all"]) # all results
+print(gs_results["best"]) # best result
 
 import json
 with open("../gs_results.txt","w") as gs_log:
