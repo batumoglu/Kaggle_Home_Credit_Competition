@@ -45,7 +45,7 @@ gs_summary = gs_results
 param_grid = {"max_depth"    : range(3,8,1)}
 lgbm = LGBM(params)
 gs_results, params = lgbm.gridsearch(param_grid, cv_params)
-gs_summary = pd.concat(gs_summary, gs_results, ignore_index=True)
+gs_summary = pd.concat([gs_summary, gs_results], ignore_index=True)
 
 profile.End()
 
