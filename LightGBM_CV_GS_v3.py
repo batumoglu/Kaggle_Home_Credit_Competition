@@ -65,7 +65,7 @@ model   = lgb.train(params=params,
                     num_boost_round=best_cv[1],
                     verbose_eval=1)
 
-model.savel_model('../AllData_v3_LGBM_Model', num_iteration=best_cv[1])
+model.save_model('../AllData_v3_LGBM_Model', num_iteration=best_cv[1])
 
 train_preds = model.predict(train_X)
 data = pd.read_csv('../input/application_train.csv')
