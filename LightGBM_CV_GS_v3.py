@@ -36,12 +36,10 @@ cv_params = {
 }
 
 # 5 grids shall be explored with different values of both max_depth and num_leaves
-param_grid2 = {
-    "max_depth"     : range(3,8,1)
-}
 
 param_grid = {
-    "num_leaves"    : range(10,51,10)
+    "num_leaves"    : range(10,51,10),
+    "max_depth"     : range(3,8,1)
 }
 
 # Create LightGBM wrapper instance with estimator parameters
