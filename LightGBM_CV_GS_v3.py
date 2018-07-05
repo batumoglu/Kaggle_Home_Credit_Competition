@@ -3,6 +3,7 @@ from lightgbm import Dataset
 from Estimators import LGBM
 from Utils import Profiler
 import pandas as pd
+from IPython.display import display
 
 profile = Profiler()
 profile.Start()
@@ -46,6 +47,10 @@ param_grid = {"max_depth"    : range(3,8,1)}
 lgbm = LGBM(params)
 gs_results, params = lgbm.gridsearch(param_grid, cv_params)
 gs_summary = pd.concat([gs_summary, gs_results], ignore_index=True)
+
+display(gs_summary)
+print('Best parameters: ')
+display(gs_results.loc[gs_results['result'].idxmax()])
 
 profile.End()
 

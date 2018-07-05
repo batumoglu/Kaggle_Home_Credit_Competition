@@ -17,7 +17,7 @@ class LGBM(object):
             cv_result = self._cv_(param_set)
             gs_cv_results.append(cv_result)
         gs_cv_results = sorted(gs_cv_results, key = lambda x : x[0])
-        best_params_ = gs_cv_results[0][2:]
+        best_params_ = gs_cv_results[-1][2:]
         best_params = dict(zip(list(self._params_.keys()), best_params_))
         cols = ['result', 'iterations']
         cols.extend(list(self._params_.keys()))
