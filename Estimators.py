@@ -1,5 +1,6 @@
 import copy
 import itertools
+import gc
 import lightgbm as lgb
 from joblib import Parallel, delayed
 
@@ -9,14 +10,21 @@ class LGBM(object):
 
     def gridsearch(self, param_grid, cv_params):
         cv_params_grid = self._create_cv_params_(param_grid, cv_params)
-        gs_cv_results = Parallel(n_jobs=-1)(delayed(self._cv_)(param_set) for param_set in cv_params_grid)
+        # gs_cv_results = Parallel(n_jobs=-1)(delayed(self._cv_)(param_set) for param_set in cv_params_grid)
+        gs_cv_results = []
+        for param_set in cv_params_grid:
+            cv_result = self._cv_(param_set)
+            gs_cv_results.append(cv_result)
         gs_cv_results = sorted(gs_cv_results, key = lambda x : x[0])
         return {"best" : gs_cv_results[-1], "all" : gs_cv_results}
 
     def _cv_(self, cv_params):
         cv_results = lgb.cv(**cv_params)
+        cv_best_result = cv_results[self._params_["metric"] + "-mean"][-1]
         del cv_params["train_set"]
-        return (cv_results[self._params_["metric"] + "-mean"][-1], cv_params)
+        del cv_results
+        gc.collect()
+        return (cv_best_result, cv_params)
 
     def _build_cv_params_(self, cv_params, param_set):
         params = copy.deepcopy(cv_params)
