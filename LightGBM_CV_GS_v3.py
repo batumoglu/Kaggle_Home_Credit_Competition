@@ -4,6 +4,7 @@ from Estimators import LGBM
 from Utils import Profiler
 import pandas as pd
 from IPython.display import display
+import lightgbm as lgb
 
 profile = Profiler()
 profile.Start()
@@ -64,15 +65,15 @@ model   = lgb.train(params=params,
                     num_boost_round=best_cv[1],
                     verbose_eval=1)
 
-model.savel_model('AllData_v3_LGBM_Model', num_iteration=best_cv[1])
+model.savel_model('../AllData_v3_LGBM_Model', num_iteration=best_cv[1])
 
 train_preds = model.predict(train_X)
 data = pd.read_csv('../input/application_train.csv')
 data = data['SK_ID_CURR']
 data['preds'] = train_preds
-data.to_csv('AllData_v3_LGBM_TrainPreds.csv', index=False)
+data.to_csv('../AllData_v3_LGBM_TrainPreds.csv', index=False)
 
 sub_preds = model.predict(test_X)
 sub = pd.read_csv('../input/sample_submission.csv')
 sub['TARGET'] = sub_preds
-sub.to_csv('AllData_v3_LGBM_Score.csv', index=False)
+sub.to_csv('../AllData_v3_LGBM_Score.csv', index=False)
