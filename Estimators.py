@@ -3,6 +3,7 @@ import itertools
 import gc
 import lightgbm as lgb
 from joblib import Parallel, delayed
+import pandas as pd
 
 class LGBM(object):
     def __init__(self, params):
@@ -16,15 +17,23 @@ class LGBM(object):
             cv_result = self._cv_(param_set)
             gs_cv_results.append(cv_result)
         gs_cv_results = sorted(gs_cv_results, key = lambda x : x[0])
-        return {"best" : gs_cv_results[-1], "all" : gs_cv_results}
+        best_params_ = gs_cv_results[-1][2:]
+        best_params = dict(zip(list(self._params_.keys()), best_params_))
+        cols = ['result', 'iterations']
+        cols.extend(list(self._params_.keys()))
+        gs_cv_results = pd.DataFrame(data=gs_cv_results, columns=cols)
+        return gs_cv_results, best_params
 
     def _cv_(self, cv_params):
         cv_results = lgb.cv(**cv_params)
         cv_best_result = cv_results[self._params_["metric"] + "-mean"][-1]
+        iterations = len(cv_results['auc-mean'])
         del cv_params["train_set"]
         del cv_results
+        results = [cv_best_result, iterations]
+        results.extend(list(cv_params['params'].values()))
         gc.collect()
-        return (cv_best_result, cv_params)
+        return results
 
     def _build_cv_params_(self, cv_params, param_set):
         params = copy.deepcopy(cv_params)
