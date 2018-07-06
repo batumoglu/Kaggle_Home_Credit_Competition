@@ -82,6 +82,8 @@ best_cv = gs_results.loc[gs_results['result'].idxmax()]
 display(best_cv)
 
 profile.End()
+print('Time elapsed: %s mins' %str(profile.ElapsedMinutes))
+
 
 # Save CV process
 gs_summary.to_csv('../AllData_v3_LGBM_GS.csv')
