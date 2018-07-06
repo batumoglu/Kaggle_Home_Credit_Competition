@@ -1,3 +1,74 @@
+| 			COLUMN NAME		 	| 	EMPTY/TOTAL 	| 	EMPTY%  |
+|------------------------------	|------------------	|-----------|
+|  DAYS_LAST_PHONE_CHANGE       |   1/307511		| [0.00%]	|
+|  CNT_FAM_MEMBERS         		|	2/307511	 	| [0.00%]	|
+|  AMT_ANNUITY             		|	12/307511	 	| [0.00%]	|
+|  AMT_GOODS_PRICE         		|   278/307511	 	| [0.09%]	|
+|  EXT_SOURCE_2            		|   660/307511	 	| [0.21%]	|
+|  OBS_30_CNT_SOCIAL_CIRCLE     |   1021/307511	 	| [0.33%]	|
+|  DEF_30_CNT_SOCIAL_CIRCLE     |   1021/307511	 	| [0.33%]	|
+|  OBS_60_CNT_SOCIAL_CIRCLE     |   1021/307511	 	| [0.33%]	|
+|  DEF_60_CNT_SOCIAL_CIRCLE     |   1021/307511	 	| [0.33%]	|
+|  NAME_TYPE_SUITE         		|   1292/307511	 	| [0.42%]	|
+|  AMT_REQ_CREDIT_BUREAU_HOUR   |   41519/307511 	| [13.50%]	|
+|  AMT_REQ_CREDIT_BUREAU_DAY    |   41519/307511 	| [13.50%]	|
+|  AMT_REQ_CREDIT_BUREAU_WEEK   |   41519/307511 	| [13.50%]	|
+|  AMT_REQ_CREDIT_BUREAU_MON    |   41519/307511 	| [13.50%]	|
+|  AMT_REQ_CREDIT_BUREAU_QRT    |   41519/307511 	| [13.50%]	|
+|  AMT_REQ_CREDIT_BUREAU_YEAR   |   41519/307511 	| [13.50%]	|
+|  EXT_SOURCE_3            		|   60965/307511 	| [19.83%]	|
+|  OCCUPATION_TYPE         		|   96391/307511 	| [31.35%]	|
+|  EMERGENCYSTATE_MODE     		|   145755/307511 	| [47.40%]	|
+|  TOTALAREA_MODE          		|   148431/307511 	| [48.27%]	|
+|  YEARS_BEGINEXPLUATATION_AVG  |   150007/307511 	| [48.78%]	|
+|  YEARS_BEGINEXPLUATATION_MODE |   150007/307511 	| [48.78%]	|
+|  YEARS_BEGINEXPLUATATION_MEDI |   150007/307511 	| [48.78%]	|
+|  FLOORSMAX_AVG           		|   153020/307511 	| [49.76%]	|
+|  FLOORSMAX_MODE          		|   153020/307511 	| [49.76%]	|
+|  FLOORSMAX_MEDI          		|   153020/307511 	| [49.76%]	|
+|  HOUSETYPE_MODE          		|   154297/307511 	| [50.18%]	|
+|  LIVINGAREA_AVG          		|   154350/307511 	| [50.19%]	|
+|  LIVINGAREA_MODE         		|   154350/307511 	| [50.19%]	|
+|  LIVINGAREA_MEDI         		|   154350/307511 	| [50.19%]	|
+|  ENTRANCES_AVG           		|   154828/307511 	| [50.35%]	|
+|  ENTRANCES_MODE          		|   154828/307511 	| [50.35%]	|
+|  ENTRANCES_MEDI          		|   154828/307511 	| [50.35%]	|
+|  APARTMENTS_AVG          		|   156061/307511 	| [50.75%]	|
+|  APARTMENTS_MODE         		|   156061/307511 	| [50.75%]	|
+|  APARTMENTS_MEDI         		|   156061/307511 	| [50.75%]	|
+|  WALLSMATERIAL_MODE           |   156341/307511 	| [50.84%]	|
+|  ELEVATORS_AVG           		|   163891/307511 	| [53.30%]	|
+|  ELEVATORS_MODE          		|   163891/307511 	| [53.30%]	|
+|  ELEVATORS_MEDI          		|   163891/307511 	| [53.30%]	|
+|  NONLIVINGAREA_AVG            |   169682/307511 	| [55.18%]	|
+|  NONLIVINGAREA_MODE           |   169682/307511 	| [55.18%]	|
+|  NONLIVINGAREA_MEDI           |   169682/307511 	| [55.18%]	|
+|  EXT_SOURCE_1            		|   173378/307511 	| [56.38%]	|
+|  BASEMENTAREA_AVG             |   179943/307511 	| [58.52%]	|
+|  BASEMENTAREA_MODE            |   179943/307511 	| [58.52%]	|
+|  BASEMENTAREA_MEDI            |   179943/307511 	| [58.52%]	|
+|  LANDAREA_AVG            		|   182590/307511 	| [59.38%]	|
+|  LANDAREA_MODE           		|   182590/307511 	| [59.38%]	|
+|  LANDAREA_MEDI           		|   182590/307511 	| [59.38%]	|
+|  OWN_CAR_AGE             		|   202929/307511 	| [65.99%]	|
+|  YEARS_BUILD_AVG         		|   204488/307511 	| [66.50%]	|
+|  YEARS_BUILD_MODE             |   204488/307511 	| [66.50%]	|
+|  YEARS_BUILD_MEDI             |   204488/307511 	| [66.50%]	|
+|  FLOORSMIN_AVG           		|   208642/307511 	| [67.85%]	|
+|  FLOORSMIN_MODE          		|   208642/307511 	| [67.85%]	|
+|  FLOORSMIN_MEDI          		|   208642/307511 	| [67.85%]	|
+|  LIVINGAPARTMENTS_AVG         |   210199/307511 	| [68.35%]	|
+|  LIVINGAPARTMENTS_MODE        |   210199/307511 	| [68.35%]	|
+|  LIVINGAPARTMENTS_MEDI        |   210199/307511 	| [68.35%]	|
+|  FONDKAPREMONT_MODE           |   210295/307511 	| [68.39%]	|
+|  NONLIVINGAPARTMENTS_AVG      |   213514/307511 	| [69.43%]	|
+|  NONLIVINGAPARTMENTS_MODE     |   213514/307511 	| [69.43%]	|
+|  NONLIVINGAPARTMENTS_MEDI     |   213514/307511 	| [69.43%]	|
+|  COMMONAREA_AVG          		|   214865/307511 	| [69.87%]	|
+|  COMMONAREA_MODE         		|   214865/307511 	| [69.87%]	|
+|  COMMONAREA_MEDI         		|   214865/307511 	| [69.87%]	|
+
+
 ../input/application_train.csv</br>
 DAYS_LAST_PHONE_CHANGE          : 1/307511 [0.00%]</br>
 CNT_FAM_MEMBERS         		: 2/307511 [0.00%]</br>
