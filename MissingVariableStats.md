@@ -1,6 +1,6 @@
 ../input/application_train.csv
 
-| 			COLUMN NAME		 	| 	EMPTY/TOTAL 	| 	EMPTY%  |
+| 			COLUMN NAME		 	| 	EMPTY/TOTAL 	| 	MISSING%  |
 |------------------------------	|------------------	|-----------|
 |  DAYS_LAST_PHONE_CHANGE       |   1/307511		| [0.00%]	|
 |  CNT_FAM_MEMBERS         		|	2/307511	 	| [0.00%]	|
@@ -73,7 +73,7 @@
 
 ../input/application_test.csv
 
-| 			COLUMN NAME		 	| 	EMPTY/TOTAL 	| 	EMPTY%  |
+| 			COLUMN NAME		 	| 	EMPTY/TOTAL 	| 	MISSING%  |
 |------------------------------	|------------------	|-----------|
 |  EXT_SOURCE_2            		|   8/48744 	  	| [0.02%]	|
 |  AMT_ANNUITY             		|	24/48744 	  	| [0.05%]	|
@@ -143,7 +143,7 @@
 
 ../input/bureau.csv
 
-| 			COLUMN NAME		 	| 	EMPTY/TOTAL 	| 	EMPTY%  |
+| 			COLUMN NAME		 	| 	EMPTY/TOTAL 	| 	MISSING%  |
 |------------------------------	|------------------	|-----------|
 |  AMT_CREDIT_SUM          		|   13/1716428 	   	| [0.00%]	|
 |  DAYS_CREDIT_ENDDATE       	|	105553/1716428  | [6.15%]	|
@@ -174,7 +174,7 @@
 
 ../input/installments_payments.csv
 
-| 			COLUMN NAME		 	| 	EMPTY/TOTAL 	| 	EMPTY%  |
+| 			COLUMN NAME		 	| 	EMPTY/TOTAL 	| 	MISSING%  |
 |------------------------------	|------------------	|-----------|
 |	DAYS_ENTRY_PAYMENT          | 2905/13605401 	|  [0.02%]	|
 |	AMT_PAYMENT             	| 2905/13605401 	|  [0.02%]	|
@@ -182,7 +182,7 @@
 
 ../input/POS_CASH_balance.csv
 
-| 			COLUMN NAME		 	| 	EMPTY/TOTAL 	| 	EMPTY%  |
+| 			COLUMN NAME		 	| 	EMPTY/TOTAL 	| 	MISSING%  |
 |------------------------------	|------------------	|-----------|
 |	CNT_INSTALMENT          	|  26071/10001358	| [0.26%]	|
 |	CNT_INSTALMENT_FUTURE       |  26087/10001358	| [0.26%]	|
