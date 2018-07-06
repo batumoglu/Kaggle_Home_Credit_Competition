@@ -26,7 +26,7 @@ params = {'task'                    :'train',
           'min_sum_hessian_in_leaf' :0.001,
           'lambda_l1'               :0,
           'lambda_l2'               :0,
-          'scale_pos_weight'        :92/8,
+          'scale_pos_weight'        :1,
           'metric'                  :'auc',
           'verbose'                 :-1}
 
@@ -75,6 +75,12 @@ lgbm = LGBM(params)
 gs_results, params = lgbm.gridsearch(param_grid, cv_params)
 gs_summary = pd.concat([gs_summary, gs_results], ignore_index=True)
 
+# Step 7
+param_grid = {"learning_rate"    : [0.01,0.02, 0.03,0.05,0.08,0.1]}
+lgbm = LGBM(params)
+gs_results, params = lgbm.gridsearch(param_grid, cv_params)
+gs_summary = pd.concat([gs_summary, gs_results], ignore_index=True)
+
 print('All Iterations')
 display(gs_summary)
 print('Best parameters: ')
@@ -86,7 +92,7 @@ print('Time elapsed: %s mins' %str(profile.ElapsedMinutes))
 
 
 # Save CV process
-gs_summary.to_csv('../AllData_v3_LGBM_GS.csv')
+gs_summary.to_csv('../AllData_v3_LGBM_GS_v3.csv')
 
 # Generate model by best iteration
 model   = lgb.train(params=params,
@@ -95,17 +101,17 @@ model   = lgb.train(params=params,
                     verbose_eval=1)
 
 # Save model for possible coded ensemble
-model.save_model('../AllData_v3_LGBM_Model', num_iteration=best_cv[1])
+model.save_model('../AllData_v3_LGBM_Model_v3', num_iteration=best_cv[1])
 
 # Generate train prediction for future ensemble
 train_preds = model.predict(train_X)
 data = pd.read_csv('../input/application_train.csv')
 data['preds'] = train_preds
 data = data[['SK_ID_CURR', 'preds']]
-data.to_csv('../AllData_v3_LGBM_TrainPreds.csv', index=False)
+data.to_csv('../AllData_v3_LGBM_TrainPreds_v3.csv', index=False)
 
 # Generate sub prediction for Kaggle
 sub_preds = model.predict(test_X)
 sub = pd.read_csv('../input/sample_submission.csv')
 sub['TARGET'] = sub_preds
-sub.to_csv('../AllData_v3_LGBM_Preds.csv', index=False)
+sub.to_csv('../AllData_v3_LGBM_Preds.csv_v3', index=False)
