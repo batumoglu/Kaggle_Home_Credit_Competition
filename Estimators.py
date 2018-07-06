@@ -1,20 +1,19 @@
 import copy
 import itertools
 import gc
-import lightgbm as lgb
 from joblib import Parallel, delayed
 import pandas as pd
 
-class LGBM(object):
+class BaseEstimator(object):
     def __init__(self, params):
         self._params_ = params
 
-    def gridsearch(self, param_grid, cv_params):
+    def _gridsearch_(self, estimator, param_grid, cv_params):
         cv_params_grid = self._create_cv_params_(param_grid, cv_params)
         # gs_cv_results = Parallel(n_jobs=-1)(delayed(self._cv_)(param_set) for param_set in cv_params_grid)
         gs_cv_results = []
         for param_set in cv_params_grid:
-            cv_result = self._cv_(param_set)
+            cv_result = self._cv_(estimator, param_set)
             gs_cv_results.append(cv_result)
         gs_cv_results = sorted(gs_cv_results, key = lambda x : x[0])
         best_params_ = gs_cv_results[-1][2:]
@@ -24,8 +23,8 @@ class LGBM(object):
         gs_cv_results = pd.DataFrame(data=gs_cv_results, columns=cols)
         return gs_cv_results, best_params
 
-    def _cv_(self, cv_params):
-        cv_results = lgb.cv(**cv_params)
+    def _cv_(self, estimator, cv_params):
+        cv_results = estimator.cv(**cv_params)
         cv_best_result = cv_results[self._params_["metric"] + "-mean"][-1]
         iterations = len(cv_results['auc-mean'])
         del cv_params["train_set"]
@@ -57,3 +56,27 @@ class LGBM(object):
         for param_name in param_grid:
             key_idx += 1
             param_grid[param_name] = value_matrix[key_idx]
+
+class LGBM(BaseEstimator):
+    def __init__(self, params):
+        super().__init__(params)
+
+    def gridsearch(self, param_grid, cv_params):
+        import lightgbm
+        return self._gridsearch_(lightgbm, param_grid, cv_params)
+
+class XGB(BaseEstimator):
+    def __init__(self, params):
+        super().__init__(params)
+
+    def gridsearch(self, param_grid, cv_params):
+        import xgboost
+        return self._gridsearch_(xgboost, param_grid, cv_params)
+
+class CATBOOST(BaseEstimator):
+    def __init__(self, params):
+        super().__init__(params)
+
+    def gridsearch(self, param_grid, cv_params):
+        import catboost
+        return self._gridsearch_(catboost, param_grid, cv_params)
