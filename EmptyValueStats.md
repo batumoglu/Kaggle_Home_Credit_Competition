@@ -1,5 +1,7 @@
 ../input/application_train.csv
+
 DAYS_LAST_PHONE_CHANGE          : 1/307511 [0.00%]
+
 CNT_FAM_MEMBERS         		: 2/307511 [0.00%]
 AMT_ANNUITY             		: 12/307511 [0.00%]
 AMT_GOODS_PRICE         		: 278/307511 [0.09%]
