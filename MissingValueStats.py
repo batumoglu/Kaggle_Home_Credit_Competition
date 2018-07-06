@@ -44,18 +44,3 @@ for f in files:
     e = find_empty_percentage(d)
     for s in e:
         print(s[0] + "\t\t: " + str(s[1]) + "/" + str(s[2]) + " [" + '%.2f' % s[3] + "%]")
-
-
-
-
-# d = pd.read_csv(POS_CASH_balance)
-# nan_cols = []
-# a = d.isna().any()
-# print(a)
-# print(type(a))
-# for i in a:
-#     print(i)
-
-# b = d["CNT_INSTALMENT"].isna().sum()
-# c = b / len(d.index) * 100
-# print(str(b) + "/" + str(len(d.index)) + " [" + "%.2f" % c + "%]")
