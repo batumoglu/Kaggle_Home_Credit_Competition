@@ -16,8 +16,8 @@ Data Preprocess Options:
 
 6- __AllData_v2__: All tables are used. None dummy generated.
 
-## There are vast amount of empty feature values within datasets.
-   Follow [this link](EmptyValueStats.md) to find out detailed statistics.
+## There are vast amount of missing variables within datasets.
+   Follow [this link](MissingVariableStats.md) to find out detailed statistics.
 
 ## Potential Models:
 * LightGBM
