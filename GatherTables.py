@@ -49,6 +49,46 @@ def generateAppFeatures(app_data):
     print('Shape after extra features = {}'.format(app_data.shape))
     return app_data
 
+def generateAppFeatures_v4(app_data):
+    # Income related features
+    app_data['LOAN_INCOME_RATIO'] = app_data['AMT_CREDIT'] / app_data['AMT_INCOME_TOTAL']
+    app_data['ANNUITY LENGTH'] = app_data['AMT_CREDIT'] / app_data['AMT_ANNUITY']
+    app_data['NEW_CREDIT_TO_GOODS_RATIO'] = app_data['AMT_CREDIT'] / app_data['AMT_GOODS_PRICE']
+    app_data['ANNUITY_INCOME_RATIO'] = app_data['AMT_ANNUITY'] / app_data['AMT_INCOME_TOTAL']
+
+    docs = [_f for _f in app_data.columns if 'FLAG_DOC' in _f]
+    live = [_f for _f in app_data.columns if ('FLAG_' in _f) & ('FLAG_DOC' not in _f) & ('_FLAG_' not in _f)]
+    inc_by_org = app_data[['AMT_INCOME_TOTAL', 'ORGANIZATION_TYPE']].groupby('ORGANIZATION_TYPE').median()['AMT_INCOME_TOTAL']
+
+    app_data['NEW_DOC_IND_KURT'] = app_data[docs].kurtosis(axis=1)
+    app_data['NEW_LIVE_IND_SUM'] = app_data[live].sum(axis=1)
+    app_data['NEW_INC_PER_CHLD'] = app_data['AMT_INCOME_TOTAL'] / (1 + app_data['CNT_CHILDREN'])
+    app_data['NEW_INC_BY_ORG'] = app_data['ORGANIZATION_TYPE'].map(inc_by_org)
+    app_data['NEW_ANNUITY_TO_INCOME_RATIO'] = app_data['AMT_ANNUITY'] / (1 + app_data['AMT_INCOME_TOTAL'])
+    
+    app_data['NEW_SOURCES_PROD'] = (1+app_data['EXT_SOURCE_1']) * (1+app_data['EXT_SOURCE_2']) * (1+app_data['EXT_SOURCE_3'])-1
+    app_data['NEW_EXT_SOURCES_MEAN'] = app_data[['EXT_SOURCE_1', 'EXT_SOURCE_2', 'EXT_SOURCE_3']].mean(axis=1)
+    app_data['NEW_SCORES_STD'] = app_data[['EXT_SOURCE_1', 'EXT_SOURCE_2', 'EXT_SOURCE_3']].std(axis=1)
+
+    app_data['NEW_CAR_TO_BIRTH_RATIO'] = app_data['OWN_CAR_AGE'] / app_data['DAYS_BIRTH']
+    app_data['NEW_CAR_TO_EMPLOY_RATIO'] = app_data['OWN_CAR_AGE'] / app_data['DAYS_EMPLOYED']
+    app_data['NEW_PHONE_TO_BIRTH_RATIO'] = app_data['DAYS_LAST_PHONE_CHANGE'] / app_data['DAYS_BIRTH']
+    app_data['NEW_PHONE_TO_BIRTH_RATIO'] = app_data['DAYS_LAST_PHONE_CHANGE'] / app_data['DAYS_EMPLOYED']
+
+    app_data['WORKING_LIFE_RATIO'] = app_data['DAYS_EMPLOYED'] / app_data['DAYS_BIRTH']
+    app_data['INCOME_PER_FAM'] = app_data['AMT_INCOME_TOTAL'] / (1+app_data['CNT_FAM_MEMBERS'])
+    app_data['CHILDREN_RATIO'] = app_data['CNT_CHILDREN'] / (1+app_data['CNT_FAM_MEMBERS'])
+    app_data['INCOME_CREDIT_PCT'] = app_data['AMT_INCOME_TOTAL'] / app_data['AMT_CREDIT']
+
+    app_data['CheckInfo'] = app_data[['REG_REGION_NOT_LIVE_REGION','REG_REGION_NOT_WORK_REGION','LIVE_REGION_NOT_WORK_REGION',
+    'REG_CITY_NOT_LIVE_CITY','REG_CITY_NOT_WORK_CITY','LIVE_CITY_NOT_WORK_CITY']].sum()
+
+    app_data['Default_Observations'] = app_data[['OBS_30_CNT_SOCIAL_CIRCLE','DEF_30_CNT_SOCIAL_CIRCLE',
+    'OBS_60_CNT_SOCIAL_CIRCLE','DEF_60_CNT_SOCIAL_CIRCLE']].sum()
+
+    print('Shape after extra features = {}'.format(app_data.shape))
+    return app_data
+
 def handlePrev(app_data):
 
     prev = pd.read_csv('../input/previous_application.csv')
@@ -59,7 +99,7 @@ def handlePrev(app_data):
     for column in prev_group.columns:
         prev_group = prev_group.rename(columns={column:'PREV_'+column})
         
-    merged_df = app_data.merge(prev_group, left_on='SK_ID_CURR', right_index=True, how='left')
+    merged_app_data = app_data.merge(prev_group, left_on='SK_ID_CURR', right_index=True, how='left')
     
     categorical_feats = [f for f in prev.columns if prev[f].dtype == 'object']    
     for f_ in categorical_feats:
@@ -82,10 +122,10 @@ def handlePrev(app_data):
                                      categorical_feats[14]:modeValue,
                                      categorical_feats[15]:modeValue})
                              
-    merged_df = merged_df.merge(prev_apps_cat_mode, left_on='SK_ID_CURR', right_index=True,
+    merged_app_data = merged_app_data.merge(prev_apps_cat_mode, left_on='SK_ID_CURR', right_index=True,
                             how='left', suffixes=['', '_PRVMODE'])
-    print('Shape after merging with PREV = {}'.format(merged_df.shape))
-    return merged_df
+    print('Shape after merging with PREV = {}'.format(merged_app_data.shape))
+    return merged_app_data
 
 def handlePrev_v2(app_data):
 

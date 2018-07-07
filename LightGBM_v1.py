@@ -124,4 +124,14 @@ train AUC       =0.782
 test AUC        =0.781
 LigGBM Parameters: Null
 
+AllData_V3
+train AUC       =0.783
+test AUC
+LigGBM Parameters: Null
+
+AllData_v4_GenerateFeatures_v4
+train AUC       =0.783
+test AUC
+LightGBM Parameters: Null
+
 """

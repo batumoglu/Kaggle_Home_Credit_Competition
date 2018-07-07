@@ -61,6 +61,29 @@ def AllData_v3(reduce_mem=True):
     y = data.pop('TARGET')
     test.drop(['TARGET'], axis=1, inplace=True)    
     return(data, test, y)  
+
+def AllData_v4(reduce_mem=True):    
+    app_data, len_train = GatherTables.getAppData()
+    app_data = GatherTables.generateAppFeatures_v4(app_data)
+    
+    merged_df = GatherTables.handlePrev_v2(app_data)
+    merged_df = GatherTables.handleCreditCard_v2(merged_df)
+    merged_df = GatherTables.handleBuro_v2(merged_df)
+    merged_df = GatherTables.handleBuroBalance_v2(merged_df)
+    merged_df = GatherTables.handlePosCash_v2(merged_df)
+    merged_df = GatherTables.handleInstallments_v2(merged_df)
+    
+    categorical_feats = [f for f in merged_df.columns if merged_df[f].dtype == 'object']    
+    for f_ in categorical_feats:
+        merged_df[f_], indexer = pd.factorize(merged_df[f_])
+                                   
+    merged_df.drop('SK_ID_CURR', axis=1, inplace=True)
+    
+    data = merged_df[:len_train]
+    test = merged_df[len_train:]
+    y = data.pop('TARGET')
+    test.drop(['TARGET'], axis=1, inplace=True)    
+    return(data, test, y)  
     
     
 
