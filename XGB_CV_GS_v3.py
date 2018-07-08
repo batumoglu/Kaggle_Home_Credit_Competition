@@ -3,7 +3,7 @@ from Estimators import XGB
 from Utils import Profiler
 import pandas as pd
 from IPython.display import display
-import xgboost
+import xgboost as xgb
 
 profile = Profiler()
 profile.Start()
@@ -19,13 +19,13 @@ dtest = xgb.DMatrix(test_X)
 params = {'eta'                 :0.3,
           'gamma'               :0,
           'max_depth'           :6,
-          'min_child_weight'    :1,
+          'min_child_weight'    :10,
           'subsample'           :1,
           'colsample_bytree'    :1,
           'colsample_bylevel'   :1,
           'lambda'              :1,
           'alpha'               :0,
-          'scale_pos_weight'    :92/8,
+          'scale_pos_weight'    :1,
           'objective'           :'binary:logistic',
           'eval_metric'         :'auc'
 }
@@ -41,39 +41,41 @@ cv_params = {
 }
 
 # Step 1
-param_grid = {"num_leaves"    : range(10,101,10)}
-xgb = XGB(params)
-gs_results, params = xgb.gridsearch(param_grid, cv_params)
+param_grid = {  "max_depth"         : range(3,9,1),
+                'min_child_weight'  : range(10,71,10)}
+model = XGB(params)
+gs_results, params = model.gridsearch(param_grid, cv_params)
 gs_summary = gs_results
 
 # Step 2
-param_grid = {"max_depth"    : range(3,10,1)}
-xgb = XGB(params)
-gs_results, params = xgb.gridsearch(param_grid, cv_params)
+param_grid = {  "gamma"             : [i/10.0 for i in range(0,5)]}
+model = XGB(params)
+gs_results, params = model.gridsearch(param_grid, cv_params)
 gs_summary = pd.concat([gs_summary, gs_results], ignore_index=True)
 
 # Step 3
-param_grid = {"min_data_in_leaf"    : range(10,81,10)}
-xgb = XGB(params)
-gs_results, params = xgb.gridsearch(param_grid, cv_params)
+param_grid = {  "subsample"         : [i/10.0 for i in range(6,10)],
+                'colsample_bytree'  : [i/10.0 for i in range(6,10)]}
+model = XGB(params)
+gs_results, params = model.gridsearch(param_grid, cv_params)
 gs_summary = pd.concat([gs_summary, gs_results], ignore_index=True)
 
 # Step 4
-param_grid = {"lambda_l1"    : [i/10.0 for i in range(0,8)]}
-xgb = XGB(params)
-gs_results, params = xgb.gridsearch(param_grid, cv_params)
+param_grid = {  "lambda"            : [0.01, 0.03, 0.1, 0.3, 1]}
+model = XGB(params)
+gs_results, params = model.gridsearch(param_grid, cv_params)
 gs_summary = pd.concat([gs_summary, gs_results], ignore_index=True)
 
 # Step 5
-param_grid = {"lambda_l2"    : [i/10.0 for i in range(0,8)]}
-xgb = XGB(params)
-gs_results, params = xgb.gridsearch(param_grid, cv_params)
+param_grid = {  "alpha"             : [0.01, 0.03, 0.1, 0.3, 1]}
+model = XGB(params)
+gs_results, params = model.gridsearch(param_grid, cv_params)
 gs_summary = pd.concat([gs_summary, gs_results], ignore_index=True)
 
 # Step 6
 param_grid = {"scale_pos_weight"    : [92/8, 1]}
-xgb = XGB(params)
-gs_results, params = xgb.gridsearch(param_grid, cv_params)
+model = XGB(params)
+gs_results, params = model.gridsearch(param_grid, cv_params)
 gs_summary = pd.concat([gs_summary, gs_results], ignore_index=True)
 
 print('All Iterations')
@@ -90,7 +92,7 @@ print('Time elapsed: %s mins' %str(profile.ElapsedMinutes))
 gs_summary.to_csv('../AllData_v3_XGB_GS.csv')
 
 # Generate model by best iteration
-model   = xgboost.train(params=params,
+model   = xgb.train(params=params,
                         dtrain=dtrain,
                         num_boost_round=best_cv[1],
                         maximize=True,

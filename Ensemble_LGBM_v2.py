@@ -72,3 +72,6 @@ print('AUC : %.3f' % roc_auc_score(train_Y, oof_preds))
 sub = pd.read_csv('../input/sample_submission.csv')
 sub['TARGET'] = sub_preds
 sub.to_csv('Ensemble_5models_SklearnClassifier.csv', index=False)
+"""
+Test AUC: 0.786
+"""

@@ -22,44 +22,44 @@ params = {'loss_function'   :'Logloss',
           'l2_leaf_reg'     :3,
           'od_type'         :'Iter',
           'depth'           :6,
-          'scale_pos_weight':92/8,
+          'scale_pos_weight':1,
           'od_wait'         :50
 }
 
 # Parameters that are to be supplied to cross-validation
 cv_params = {
     "pool"          : cat_train,
-    "iterations"    : 1000,
+    "iterations"    : 10000,
     "fold_count"    : 5,
     "logging_level" : "Verbose"
 }
 
 # Step 1
-param_grid = {"num_leaves"    : range(10,101,10)}
+param_grid = {"depth"    :  range(3,9,1)}
 cat = CATBOOST(params)
 gs_results, params = cat.gridsearch(param_grid, cv_params)
 gs_summary = gs_results
 
 # Step 2
-param_grid = {"max_depth"    : range(3,10,1)}
+param_grid = {"l2_leaf_reg"    : [0.01,0.03,0.1,0.3]}
 cat = CATBOOST(params)
 gs_results, params = cat.gridsearch(param_grid, cv_params)
 gs_summary = pd.concat([gs_summary, gs_results], ignore_index=True)
 
 # Step 3
-param_grid = {"min_data_in_leaf"    : range(10,81,10)}
+param_grid = {"border_count"    : [32,64,127,255]}
 cat = CATBOOST(params)
 gs_results, params = cat.gridsearch(param_grid, cv_params)
 gs_summary = pd.concat([gs_summary, gs_results], ignore_index=True)
 
 # Step 4
-param_grid = {"lambda_l1"    : [i/10.0 for i in range(0,8)]}
+param_grid = {"ctr_border_count"    : [32,64,127,255]}
 cat = CATBOOST(params)
 gs_results, params = cat.gridsearch(param_grid, cv_params)
 gs_summary = pd.concat([gs_summary, gs_results], ignore_index=True)
 
 # Step 5
-param_grid = {"lambda_l2"    : [i/10.0 for i in range(0,8)]}
+param_grid = {"learning_rate"    : [0.001,0.003,0.01,0.03,0.1,0.3]}
 cat = CATBOOST(params)
 gs_results, params = cat.gridsearch(param_grid, cv_params)
 gs_summary = pd.concat([gs_summary, gs_results], ignore_index=True)
@@ -90,7 +90,7 @@ model   = catb.train(params=params,
                      logging_eval="Verbose")
 
 # Save model for possible coded ensemble
-model.save_model('../AllData_v3_CATBOOST_Model', num_iteration=best_cv[1])
+catb.save_model(model, '../AllData_v3_CATBOOST_Model')
 
 # Generate train prediction for future ensemble
 train_preds = model.predict(train_X)
