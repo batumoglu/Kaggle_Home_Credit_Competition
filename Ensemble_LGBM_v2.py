@@ -19,6 +19,8 @@ train2 = pd.read_csv('GridSearch/AllData_v2_LGBM_TrainPreds.csv')
 train3 = pd.read_csv('GridSearch/AllData_v3_LGBM_TrainPreds.csv')
 train4 = pd.read_csv('GridSearch/AppBuroPrev_LGBM_TrainPreds.csv')
 train5 = pd.read_csv('GridSearch/ApplicationBuro_LGBM_TrainPreds.csv')
+train6 = pd.read_csv('GridSearch/AppOnly_LGBM_TrainPreds.csv')
+train7 = pd.read_csv('GridSearch/AppBuroBal_LGBM_TrainPreds.csv')
 
 trainMerged = copy.deepcopy(train1)
 trainMerged['train1'] = train1['preds']
@@ -26,6 +28,8 @@ trainMerged['train2'] = train2['preds']
 trainMerged['train3'] = train3['preds']
 trainMerged['train4'] = train4['preds']
 trainMerged['train5'] = train5['preds']
+trainMerged['train6'] = train6['preds']
+trainMerged['train7'] = train7['preds']
 trainMerged.drop(['preds','SK_ID_CURR'], axis=1, inplace=True)
 
 # Prepare data for model
@@ -39,6 +43,8 @@ sub2 = pd.read_csv('GridSearch/AllData_v2_LGBM_Preds.csv')
 sub3 = pd.read_csv('GridSearch/AllData_v3_LGBM_Preds.csv')
 sub4 = pd.read_csv('GridSearch/AppBuroPrev_LGBM_Preds.csv')
 sub5 = pd.read_csv('GridSearch/ApplicationBuro_LGBM_Preds.csv')
+sub6 = pd.read_csv('GridSearch/AppOnly_LGBM_Preds.csv')
+sub7 = pd.read_csv('GridSearch/AppBuroBal_LGBM_Preds.csv')
 
 subMerged = copy.deepcopy(sub1)
 subMerged['train1'] = sub1['TARGET']
@@ -46,6 +52,8 @@ subMerged['train2'] = sub2['TARGET']
 subMerged['train3'] = sub3['TARGET']
 subMerged['train4'] = sub4['TARGET']
 subMerged['train5'] = sub5['TARGET']
+subMerged['train6'] = sub6['TARGET']
+subMerged['train7'] = sub7['TARGET']
 subMerged.drop(['TARGET','SK_ID_CURR'], axis=1, inplace=True)
 
 # Train the model
@@ -71,7 +79,8 @@ print('AUC : %.3f' % roc_auc_score(train_Y, oof_preds))
 # Generate Submission
 sub = pd.read_csv('../input/sample_submission.csv')
 sub['TARGET'] = sub_preds
-sub.to_csv('Ensemble_5models_SklearnClassifier.csv', index=False)
+sub.to_csv('Ensemble_5models_LGBMClassifier.csv', index=False)
 """
-Test AUC: 0.786
+5 models, Valid Score: 0.826, Test Score: 0.786
+7 models, Valid Score: 0.847, Test Score: 0.790
 """
