@@ -4,6 +4,7 @@ from Utils import Profiler
 import pandas as pd
 from IPython.display import display
 import xgboost as xgb
+import gc
 
 profile = Profiler()
 profile.Start()
@@ -41,42 +42,60 @@ cv_params = {
 }
 
 # Step 1
+print("Creating Step-1 param grid and running GridSearch")
 param_grid = {  "max_depth"         : range(3,9,1),
                 'min_child_weight'  : range(10,71,10)}
 model = XGB(params)
 gs_results, params = model.gridsearch(param_grid, cv_params)
 gs_summary = gs_results
+del model
+gc.collect()
 
 # Step 2
+print("Creating Step-2 param grid and running GridSearch")
 param_grid = {  "gamma"             : [i/10.0 for i in range(0,5)]}
 model = XGB(params)
 gs_results, params = model.gridsearch(param_grid, cv_params)
 gs_summary = pd.concat([gs_summary, gs_results], ignore_index=True)
+del model
+gc.collect()
 
 # Step 3
+print("Creating Step-3 param grid and running GridSearch")
 param_grid = {  "subsample"         : [i/10.0 for i in range(6,10)],
                 'colsample_bytree'  : [i/10.0 for i in range(6,10)]}
 model = XGB(params)
 gs_results, params = model.gridsearch(param_grid, cv_params)
 gs_summary = pd.concat([gs_summary, gs_results], ignore_index=True)
+del model
+gc.collect()
 
 # Step 4
+print("Creating Step-4 param grid and running GridSearch")
 param_grid = {  "lambda"            : [0.01, 0.03, 0.1, 0.3, 1]}
 model = XGB(params)
 gs_results, params = model.gridsearch(param_grid, cv_params)
 gs_summary = pd.concat([gs_summary, gs_results], ignore_index=True)
+del model
+gc.collect()
 
 # Step 5
+print("Creating Step-5 param grid and running GridSearch")
 param_grid = {  "alpha"             : [0.01, 0.03, 0.1, 0.3, 1]}
 model = XGB(params)
 gs_results, params = model.gridsearch(param_grid, cv_params)
 gs_summary = pd.concat([gs_summary, gs_results], ignore_index=True)
+del model
+gc.collect()
 
 # Step 6
+print("Creating Step-6 param grid and running GridSearch")
 param_grid = {"scale_pos_weight"    : [92/8, 1]}
 model = XGB(params)
 gs_results, params = model.gridsearch(param_grid, cv_params)
 gs_summary = pd.concat([gs_summary, gs_results], ignore_index=True)
+del model
+gc.collect()
 
 print('All Iterations')
 display(gs_summary)
@@ -99,7 +118,7 @@ model   = xgb.train(params=params,
                         verbose_eval=10)
 
 # Save model for possible coded ensemble
-model.save_model('../AllData_v3_XGB_Model', num_iteration=best_cv[1])
+model.save_model('../AllData_v3_XGB_Model')
 
 # Generate train prediction for future ensemble
 train_preds = model.predict(train_X)

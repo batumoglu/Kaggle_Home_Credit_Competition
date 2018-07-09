@@ -10,7 +10,6 @@ class BaseEstimator(object):
 
     def _gridsearch_(self, estimator, param_grid, cv_params):
         cv_params_grid = self._create_cv_params_(param_grid, cv_params)
-        # gs_cv_results = Parallel(n_jobs=-1)(delayed(self._cv_)(param_set) for param_set in cv_params_grid)
         gs_cv_results = []
         for param_set in cv_params_grid:
             cv_result = self._cv_(estimator, param_set)
@@ -25,17 +24,23 @@ class BaseEstimator(object):
 
     def _cv_(self, estimator, cv_params):
         cv_results = estimator.cv(**cv_params)
-        cv_best_result = cv_results[self._params_["metric"] + "-mean"][-1]
-        iterations = len(cv_results['auc-mean'])
-        del cv_params["train_set"]
-        del cv_results
-        results = [cv_best_result, iterations]
+        results = self._get_best_result_(cv_results)
+        cv_params = self._get_cv_params_(cv_params)
         results.extend(list(cv_params['params'].values()))
+        del cv_results
         gc.collect()
         return results
 
+    def _get_best_result_(self, cv_results):
+        pass
+
+    def _get_cv_params_(self, cv_params):
+        pass
+
     def _build_cv_params_(self, cv_params, param_set):
-        params = copy.deepcopy(cv_params)
+        params = {}
+        for param_name, param_values in iter(cv_params.items()):
+            params[param_name] = param_values
         params.update(params=param_set)
         return params
 
@@ -65,6 +70,17 @@ class LGBM(BaseEstimator):
         import lightgbm
         return self._gridsearch_(lightgbm, param_grid, cv_params)
 
+    def _get_best_result_(self, cv_results):
+        metric = self._params_["metric"] + "-mean"
+        cv_best_result = cv_results[metric][-1]
+        iterations = len(cv_results[metric])
+        return [cv_best_result, iterations]
+
+    def _get_cv_params_(self, cv_params):
+        del cv_params["train_set"]
+        gc.collect()
+        return cv_params
+
 class XGB(BaseEstimator):
     def __init__(self, params):
         super().__init__(params)
@@ -72,6 +88,18 @@ class XGB(BaseEstimator):
     def gridsearch(self, param_grid, cv_params):
         import xgboost
         return self._gridsearch_(xgboost, param_grid, cv_params)
+
+    def _get_best_result_(self, cv_results):
+        metric = "test-" + self._params_["eval_metric"] + "-mean"
+        cv_results.sort_values(metric, ascending=True, inplace=True)
+        cv_best_result = cv_results[metric].max()
+        iterations = len(cv_results[metric])
+        return [cv_best_result, iterations]
+
+    def _get_cv_params_(self, cv_params):
+        del cv_params["dtrain"]
+        gc.collect()
+        return cv_params
 
 class CATBOOST(BaseEstimator):
     def __init__(self, params):
