@@ -12,6 +12,13 @@ from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 from scipy import stats
 import GatherTables
 
+def one_hot_encoder(df):
+    original_columns = list(df.columns)
+    categorical_columns = [col for col in df.columns if df[col].dtype == 'object']
+    df = pd.get_dummies(df, columns= categorical_columns, dummy_na= True)
+    new_columns = [c for c in df.columns if c not in original_columns]
+    return df
+
 def checkTrainTestConsistency(train, test):
     
     return (train,test)
@@ -73,9 +80,7 @@ def AllData_v4(reduce_mem=True):
     merged_df = GatherTables.handlePosCash_v2(merged_df)
     merged_df = GatherTables.handleInstallments_v2(merged_df)
     
-    categorical_feats = [f for f in merged_df.columns if merged_df[f].dtype == 'object']    
-    for f_ in categorical_feats:
-        merged_df[f_], indexer = pd.factorize(merged_df[f_])
+    merged_df = one_hot_encoder(merged_df)
                                    
     merged_df.drop('SK_ID_CURR', axis=1, inplace=True)
     

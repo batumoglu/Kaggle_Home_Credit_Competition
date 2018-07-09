@@ -5,12 +5,14 @@ from Utils import Profiler
 import pandas as pd
 from IPython.display import display
 import lightgbm as lgb
+import Gather_Data
 
 profile = Profiler()
 profile.Start()
 
 # Gather Data
-train_X, test_X, train_Y = dataset.Load('AllData_v3')
+#train_X, test_X, train_Y = dataset.Load('AllData_v3')
+train_X, test_X, train_Y = Gather_Data.AllData_v4()
 
 # Convert data to DMatrix
 lgb_train = Dataset(train_X, train_Y)
