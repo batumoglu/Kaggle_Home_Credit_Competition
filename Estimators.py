@@ -108,3 +108,15 @@ class CATBOOST(BaseEstimator):
     def gridsearch(self, param_grid, cv_params):
         import catboost
         return self._gridsearch_(catboost, param_grid, cv_params)
+
+    def _get_best_result_(self, cv_results):
+        metric = "test-" + self._params_["eval_metric"] + "-mean"
+        cv_results.sort_values(metric, ascending=True, inplace=True)
+        cv_best_result = cv_results[metric].max()
+        iterations = len(cv_results[metric])
+        return [cv_best_result, iterations]
+
+    def _get_cv_params_(self, cv_params):
+        del cv_params["pool"]
+        gc.collect()
+        return cv_params
