@@ -35,7 +35,7 @@ cv_params = {
 }
 
 # Step 1
-param_grid = {"depth"    :  range(3,4,1)}
+param_grid = {"depth"    :  range(3,9,1)}
 cat = CATBOOST(params)
 gs_results, params = cat.gridsearch(param_grid, cv_params)
 gs_summary = gs_results
