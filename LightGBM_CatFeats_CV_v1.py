@@ -41,7 +41,7 @@ cv_results = lgb.cv(params=params,
                     num_boost_round=1000,
                     nfold=5,
                     early_stopping_rounds=50,
-                    verbose_eval=1)
+                    verbose_eval=10)
 
 # Get best number of iterations
 num_boost_rounds = len(cv_results['auc-mean'])
@@ -50,7 +50,7 @@ print(num_boost_rounds)
 # Generate model by best iteration
 model   = lgb.train(params=params,
                     train_set=lgb_train,
-                    num_boost_round=int(num_boost_rounds)/0.8,
+                    num_boost_round=int(num_boost_rounds/0.8),
                     verbose_eval=1)
 
 sub_preds = model.predict(test_X)
@@ -59,7 +59,8 @@ sub['TARGET'] = sub_preds
 sub.to_csv('AllData_v3_LGBM_CatFets.csv', index=False)
 
 """
-num_boost_round=138, valid-auc:0.784, test-auc: 0.782
+num_boost_round=147, valid-auc:0.784, test-auc: 0.781
+
 """
 
 """
