@@ -16,6 +16,9 @@ sub4 = pd.read_csv('GridSearch/AppBuroPrev_LGBM_Preds.csv')
 sub5 = pd.read_csv('GridSearch/ApplicationBuro_LGBM_Preds.csv')
 sub6 = pd.read_csv('GridSearch/AppOnly_LGBM_Preds.csv')
 sub7 = pd.read_csv('GridSearch/AppBuroBal_LGBM_Preds.csv')
+sub8 = pd.read_csv('GridSearch/AllData_v4_AddFeat_LGBM_Preds.csv')
+sub9 = pd.read_csv('GridSearch/AllData_v3_XGB_Preds.csv')
+sub10 = pd.read_csv('GridSearch/AllData_XGB_Preds.csv')
 
 """
 # Score of the models
@@ -26,6 +29,9 @@ result4 = 0.77715
 result5 = 0.76761
 result6 = 0.76008
 result7 = 0.76780
+result8 = 0.79058
+result9 = 0.78612
+result10 = 0.78026
 """
 
 # Calculating correlation of models
@@ -38,13 +44,17 @@ merged['sub4'] = sub4['TARGET']
 merged['sub5'] = sub5['TARGET']
 merged['sub6'] = sub6['TARGET']
 merged['sub7'] = sub7['TARGET']
+merged['sub8'] = sub8['TARGET']
+merged['sub9'] = sub9['TARGET']
+merged['sub10'] = sub10['TARGET']
+
 
 merged.drop('TARGET', axis=1, inplace=True)
 merged.set_index('SK_ID_CURR', inplace=True)
 merged.corr()
 
 # Getting average of 7 models
-merged['Avg'] = merged.sum(axis=1)/7
+merged['Avg'] = merged.sum(axis=1)/6
 sub['TARGET'] = sub['SK_ID_CURR'].map(merged['Avg'])
 sub.to_csv('../Merge7Model.csv', index=False)
 
@@ -52,4 +62,5 @@ sub.to_csv('../Merge7Model.csv', index=False)
 First 3 models average: TestAUC: 0.789
 First 5 models average: TestAUC: 0.784
 First 7 models average: TestAUC: 0.780
+Best 6 models average:  TestAUC: 0.792
 """

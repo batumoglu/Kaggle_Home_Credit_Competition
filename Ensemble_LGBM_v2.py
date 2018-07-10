@@ -21,6 +21,9 @@ train4 = pd.read_csv('GridSearch/AppBuroPrev_LGBM_TrainPreds.csv')
 train5 = pd.read_csv('GridSearch/ApplicationBuro_LGBM_TrainPreds.csv')
 train6 = pd.read_csv('GridSearch/AppOnly_LGBM_TrainPreds.csv')
 train7 = pd.read_csv('GridSearch/AppBuroBal_LGBM_TrainPreds.csv')
+train8 = pd.read_csv('GridSearch/AllData_v4_AddFeat_LGBM_TrainPreds.csv')
+train9 = pd.read_csv('GridSearch/AllData_v3_XGB_TrainPreds.csv')
+train10 = pd.read_csv('GridSearch/AllData_XGB_TrainPreds.csv')
 
 trainMerged = copy.deepcopy(train1)
 trainMerged['train1'] = train1['preds']
@@ -30,6 +33,9 @@ trainMerged['train4'] = train4['preds']
 trainMerged['train5'] = train5['preds']
 trainMerged['train6'] = train6['preds']
 trainMerged['train7'] = train7['preds']
+trainMerged['train8'] = train8['preds']
+trainMerged['train9'] = train9['preds']
+trainMerged['train10'] = train10['preds']
 trainMerged.drop(['preds','SK_ID_CURR'], axis=1, inplace=True)
 
 # Prepare data for model
@@ -45,6 +51,9 @@ sub4 = pd.read_csv('GridSearch/AppBuroPrev_LGBM_Preds.csv')
 sub5 = pd.read_csv('GridSearch/ApplicationBuro_LGBM_Preds.csv')
 sub6 = pd.read_csv('GridSearch/AppOnly_LGBM_Preds.csv')
 sub7 = pd.read_csv('GridSearch/AppBuroBal_LGBM_Preds.csv')
+sub8 = pd.read_csv('GridSearch/AllData_v4_AddFeat_LGBM_Preds.csv')
+sub9 = pd.read_csv('GridSearch/AllData_v3_XGB_Preds.csv')
+sub10 = pd.read_csv('GridSearch/AllData_XGB_Preds.csv')
 
 subMerged = copy.deepcopy(sub1)
 subMerged['train1'] = sub1['TARGET']
@@ -54,6 +63,10 @@ subMerged['train4'] = sub4['TARGET']
 subMerged['train5'] = sub5['TARGET']
 subMerged['train6'] = sub6['TARGET']
 subMerged['train7'] = sub7['TARGET']
+subMerged['train8'] = sub8['TARGET']
+subMerged['train9'] = sub9['TARGET']
+subMerged['train10'] = sub10['TARGET']
+
 subMerged.drop(['TARGET','SK_ID_CURR'], axis=1, inplace=True)
 
 # Train the model
@@ -79,8 +92,9 @@ print('AUC : %.3f' % roc_auc_score(train_Y, oof_preds))
 # Generate Submission
 sub = pd.read_csv('../input/sample_submission.csv')
 sub['TARGET'] = sub_preds
-sub.to_csv('Ensemble_5models_LGBMClassifier.csv', index=False)
+sub.to_csv('Ensemble_10models_LGBMClassifier.csv', index=False)
 """
 5 models, Valid Score: 0.826, Test Score: 0.786
 7 models, Valid Score: 0.847, Test Score: 0.790
+10 Models, Valid Score: 0.857, Test Score: 0.787
 """
