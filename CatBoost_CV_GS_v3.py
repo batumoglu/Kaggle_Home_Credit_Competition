@@ -87,20 +87,22 @@ gs_summary.to_csv('../AllData_v3_CATBOOST_GS.csv')
 model   = catb.train(params=params,
                      pool=cat_train,
                      num_boost_round=best_cv[1],
-                     logging_eval="Verbose")
+                     logging_level="Verbose")
 
 # Save model for possible coded ensemble
-catb.save_model(model, '../AllData_v3_CATBOOST_Model')
+model.save_model('../AllData_v3_CATBOOST_Model')
 
 # Generate train prediction for future ensemble
-train_preds = model.predict(train_X)
+train_preds = model.predict(train_X, prediction_type="Probability")
 data = pd.read_csv('../input/application_train.csv')
-data['preds'] = train_preds
+
+data['preds'] = train_preds[:,1]
 data = data[['SK_ID_CURR', 'preds']]
 data.to_csv('../AllData_v3_CATBOOST_TrainPreds.csv', index=False)
 
 # Generate sub prediction for Kaggle
-sub_preds = model.predict(test_X)
+sub_preds = model.predict(test_X, prediction_type="Probability")
 sub = pd.read_csv('../input/sample_submission.csv')
-sub['TARGET'] = sub_preds
+
+sub['TARGET'] = sub_preds[:,1]
 sub.to_csv('../AllData_v3_CATBOOST_Preds.csv', index=False)
