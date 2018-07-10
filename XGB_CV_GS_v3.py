@@ -10,7 +10,7 @@ profile = Profiler()
 profile.Start()
 
 # Gather Data
-train_X, test_X, train_Y = Dataset.Load('AllData_v3')
+train_X, test_X, train_Y = Dataset.Load('AllData_v2')
 
 # Convert data to DMatrix
 dtrain = xgb.DMatrix(train_X, train_Y)
@@ -35,11 +35,11 @@ params = {'eta'                 :0.3,
 # Parameters that are to be supplied to cross-validation
 cv_params = {
     "dtrain"                : dtrain,
-    "num_boost_round"       : 1000,
+    "num_boost_round"       : 10000,
     "nfold"                 : 5,
     "maximize"              : True,
-    "early_stopping_rounds" : 10,
-    "verbose_eval"          : 1
+    "early_stopping_rounds" : 30,
+    "verbose_eval"          : 10
 }
 
 # Step 1
@@ -109,7 +109,7 @@ print('Time elapsed: %s mins' %str(profile.ElapsedMinutes))
 
 
 # Save CV process
-gs_summary.to_csv('../AllData_v3_XGB_GS.csv')
+gs_summary.to_csv('../AllData_v2_XGB_GS.csv')
 
 # Generate model by best iteration
 model   = xgb.train(params=params,
@@ -119,20 +119,20 @@ model   = xgb.train(params=params,
                         verbose_eval=10)
 
 # Save model for possible coded ensemble
-model.save_model('GridSearch/AllData_v3_XGB_Model')
+model.save_model('../AllData_v2_XGB_Model')
 
 # Generate train prediction for future ensemble
 train_preds = model.predict(xgb.DMatrix(train_X))
 data = pd.read_csv('../input/application_train.csv')
 data['preds'] = train_preds
 data = data[['SK_ID_CURR', 'preds']]
-data.to_csv('GridSearch/AllData_v3_XGB_TrainPreds.csv', index=False)
+data.to_csv('../AllData_v2_XGB_TrainPreds.csv', index=False)
 
 # Generate sub prediction for Kaggle
 sub_preds = model.predict(xgb.DMatrix(test_X))
 sub = pd.read_csv('../input/sample_submission.csv')
 sub['TARGET'] = sub_preds
-sub.to_csv('GridSearch/AllData_v3_XGB_Preds.csv', index=False)
+sub.to_csv('../AllData_v2_XGB_Preds.csv', index=False)
 
 '''
 Best parameters:
