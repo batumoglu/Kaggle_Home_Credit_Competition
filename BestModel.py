@@ -124,14 +124,14 @@ def bureau_and_balance(num_rows = None, nan_as_category = True):
     active = bureau[bureau['CREDIT_ACTIVE_Active'] == 1]
     active_agg = active.groupby('SK_ID_CURR').agg(num_aggregations)
     active_agg.columns = pd.Index(['ACTIVE_' + e[0] + "_" + e[1].upper() for e in active_agg.columns.tolist()])
-    bureau_agg = bureau_agg.join(active_agg, how='left', on='SK_ID_CURR')
+    bureau_agg = bureau_agg.join(active_agg, how='left')
     del active, active_agg
     gc.collect()
     # Bureau: Closed credits - using only numerical aggregations
     closed = bureau[bureau['CREDIT_ACTIVE_Closed'] == 1]
     closed_agg = closed.groupby('SK_ID_CURR').agg(num_aggregations)
     closed_agg.columns = pd.Index(['CLOSED_' + e[0] + "_" + e[1].upper() for e in closed_agg.columns.tolist()])
-    bureau_agg = bureau_agg.join(closed_agg, how='left', on='SK_ID_CURR')
+    bureau_agg = bureau_agg.join(closed_agg, how='left')
     del closed, closed_agg, bureau
     gc.collect()
     return bureau_agg
@@ -172,12 +172,12 @@ def previous_applications(num_rows = None, nan_as_category = True):
     approved = prev[prev['NAME_CONTRACT_STATUS_Approved'] == 1]
     approved_agg = approved.groupby('SK_ID_CURR').agg(num_aggregations)
     approved_agg.columns = pd.Index(['APPROVED_' + e[0] + "_" + e[1].upper() for e in approved_agg.columns.tolist()])
-    prev_agg = prev_agg.join(approved_agg, how='left', on='SK_ID_CURR')
+    prev_agg = prev_agg.join(approved_agg, how='left')
     # Previous Applications: Refused Applications - only numerical features
     refused = prev[prev['NAME_CONTRACT_STATUS_Refused'] == 1]
     refused_agg = refused.groupby('SK_ID_CURR').agg(num_aggregations)
     refused_agg.columns = pd.Index(['REFUSED_' + e[0] + "_" + e[1].upper() for e in refused_agg.columns.tolist()])
-    prev_agg = prev_agg.join(refused_agg, how='left', on='SK_ID_CURR')
+    prev_agg = prev_agg.join(refused_agg, how='left')
     del refused, refused_agg, approved, approved_agg, prev
     gc.collect()
     return prev_agg
