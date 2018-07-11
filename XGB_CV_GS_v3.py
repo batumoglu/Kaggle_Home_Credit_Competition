@@ -10,7 +10,7 @@ profile = Profiler()
 profile.Start()
 
 # Gather Data
-train_X, test_X, train_Y = Dataset.Load('ApplicationBuroBalance')
+train_X, test_X, train_Y = Dataset.Load('ApplicationBuro')
 
 # Convert data to DMatrix
 dtrain = xgb.DMatrix(train_X, train_Y)
@@ -28,7 +28,8 @@ params = {'eta'                 :0.3,
           'alpha'               :0,
           'scale_pos_weight'    :1,
           'objective'           :'binary:logistic',
-          'eval_metric'         :'auc'
+          'eval_metric'         :'auc',
+          'silent'              :1
 }
 
 
@@ -109,7 +110,7 @@ print('Time elapsed: %s mins' %str(profile.ElapsedMinutes))
 
 
 # Save CV process
-gs_summary.to_csv('../AppBuroBal_XGB_GS.csv')
+gs_summary.to_csv('../ApplicationBuro_XGB_GS.csv')
 
 # Generate model by best iteration
 model   = xgb.train(params=params,
@@ -119,20 +120,20 @@ model   = xgb.train(params=params,
                         verbose_eval=10)
 
 # Save model for possible coded ensemble
-model.save_model('../AppBuroBal_XGB_Model')
+model.save_model('../ApplicationBuro_XGB_Model')
 
 # Generate train prediction for future ensemble
 train_preds = model.predict(xgb.DMatrix(train_X))
 data = pd.read_csv('../input/application_train.csv')
 data['preds'] = train_preds
 data = data[['SK_ID_CURR', 'preds']]
-data.to_csv('../AppBuroBal_XGB_TrainPreds.csv', index=False)
+data.to_csv('../ApplicationBuro_XGB_TrainPreds.csv', index=False)
 
 # Generate sub prediction for Kaggle
 sub_preds = model.predict(xgb.DMatrix(test_X))
 sub = pd.read_csv('../input/sample_submission.csv')
 sub['TARGET'] = sub_preds
-sub.to_csv('../AppBuroBal_XGB_Preds.csv', index=False)
+sub.to_csv('../ApplicationBuro_XGB_Preds.csv', index=False)
 
 '''
 Best parameters:
