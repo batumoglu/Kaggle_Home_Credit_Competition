@@ -18,22 +18,21 @@ def timer(title):
     print("{} - done in {:.0f}s".format(title, time.time() - t0))
 
 # One-hot encoding for categorical columns with get_dummies
-def one_hot_encoder(df, nan_as_category = True):
+def one_hot_encoder(df):
     original_columns = list(df.columns)
     categorical_columns = [col for col in df.columns if df[col].dtype == 'object']
-    df = pd.get_dummies(df, columns= categorical_columns, dummy_na= nan_as_category)
+    df = pd.get_dummies(df, columns= categorical_columns, dummy_na=True)
     new_columns = [c for c in df.columns if c not in original_columns]
     return df, new_columns
 
 # Preprocess application_train.csv and application_test.csv
-def application_train_test(num_rows = None, nan_as_category = False):
+def application_train_test():
     # Read data and merge
-    df = pd.read_csv('../input/application_train.csv', nrows= num_rows)
-    test_df = pd.read_csv('../input/application_test.csv', nrows= num_rows)
-    print("Train samples: {}, test samples: {}".format(len(df), len(test_df)))
-    df = df.append(test_df).reset_index()
-    # Optional: Remove 4 applications with XNA CODE_GENDER (train set)
-    df = df[df['CODE_GENDER'] != 'XNA']
+    data = pd.read_csv('../../input/application_train.csv')
+    test = pd.read_csv('../../input/application_test.csv')
+    print("Train samples: {}, test samples: {}".format(len(data), len(test)))
+    df = pd.concat([data, test])
+    df.loc[df['CODE_GENDER']=='XNA','CODE_GENDER'] = 'F'
     
     docs = [_f for _f in df.columns if 'FLAG_DOC' in _f]
     live = [_f for _f in df.columns if ('FLAG_' in _f) & ('FLAG_DOC' not in _f) & ('_FLAG_' not in _f)]
@@ -51,7 +50,7 @@ def application_train_test(num_rows = None, nan_as_category = False):
     df['NEW_INC_BY_ORG'] = df['ORGANIZATION_TYPE'].map(inc_by_org)
     df['NEW_EMPLOY_TO_BIRTH_RATIO'] = df['DAYS_EMPLOYED'] / df['DAYS_BIRTH']
     df['NEW_ANNUITY_TO_INCOME_RATIO'] = df['AMT_ANNUITY'] / (1 + df['AMT_INCOME_TOTAL'])
-    df['NEW_SOURCES_PROD'] = df['EXT_SOURCE_1'] * df['EXT_SOURCE_2'] * df['EXT_SOURCE_3']
+    df['NEW_SOURCES_PROD'] = (df['EXT_SOURCE_1']+1) * (df['EXT_SOURCE_2']+1) * (df['EXT_SOURCE_3']+1)
     df['NEW_EXT_SOURCES_MEAN'] = df[['EXT_SOURCE_1', 'EXT_SOURCE_2', 'EXT_SOURCE_3']].mean(axis=1)
     df['NEW_SCORES_STD'] = df[['EXT_SOURCE_1', 'EXT_SOURCE_2', 'EXT_SOURCE_3']].std(axis=1)
     df['NEW_SCORES_STD'] = df['NEW_SCORES_STD'].fillna(df['NEW_SCORES_STD'].mean())
@@ -65,7 +64,7 @@ def application_train_test(num_rows = None, nan_as_category = False):
     for bin_feature in ['CODE_GENDER', 'FLAG_OWN_CAR', 'FLAG_OWN_REALTY']:
         df[bin_feature], uniques = pd.factorize(df[bin_feature])
     # Categorical features with One-Hot encode
-    df, cat_cols = one_hot_encoder(df, nan_as_category)
+    df, cat_cols = one_hot_encoder(df)
     dropcolum=['FLAG_DOCUMENT_2','FLAG_DOCUMENT_4',
     'FLAG_DOCUMENT_5','FLAG_DOCUMENT_6','FLAG_DOCUMENT_7',
     'FLAG_DOCUMENT_8','FLAG_DOCUMENT_9','FLAG_DOCUMENT_10', 
@@ -74,16 +73,14 @@ def application_train_test(num_rows = None, nan_as_category = False):
     'FLAG_DOCUMENT_17','FLAG_DOCUMENT_18','FLAG_DOCUMENT_19',
     'FLAG_DOCUMENT_20','FLAG_DOCUMENT_21']
     df= df.drop(dropcolum,axis=1)
-    del test_df
-    gc.collect()
     return df
 
 # Preprocess bureau.csv and bureau_balance.csv
-def bureau_and_balance(num_rows = None, nan_as_category = True):
-    bureau = pd.read_csv('../input/bureau.csv', nrows = num_rows)
-    bb = pd.read_csv('../input/bureau_balance.csv', nrows = num_rows)
-    bb, bb_cat = one_hot_encoder(bb, nan_as_category)
-    bureau, bureau_cat = one_hot_encoder(bureau, nan_as_category)
+def bureau_and_balance():
+    bureau = pd.read_csv('../input/bureau.csv')
+    bb = pd.read_csv('../input/bureau_balance.csv')
+    bb, bb_cat = one_hot_encoder(bb)
+    bureau, bureau_cat = one_hot_encoder(bureau)
     
     # Bureau balance: Perform aggregations and merge with bureau.csv
     bb_aggregations = {'MONTHS_BALANCE': ['min', 'max', 'size']}
@@ -93,8 +90,6 @@ def bureau_and_balance(num_rows = None, nan_as_category = True):
     bb_agg.columns = pd.Index([e[0] + "_" + e[1].upper() for e in bb_agg.columns.tolist()])
     bureau = bureau.join(bb_agg, how='left', on='SK_ID_BUREAU')
     bureau.drop(['SK_ID_BUREAU'], axis=1, inplace= True)
-    del bb, bb_agg
-    gc.collect()
     
     # Bureau and bureau_balance numeric features
     num_aggregations = {
@@ -132,14 +127,13 @@ def bureau_and_balance(num_rows = None, nan_as_category = True):
     closed_agg = closed.groupby('SK_ID_CURR').agg(num_aggregations)
     closed_agg.columns = pd.Index(['CLOSED_' + e[0] + "_" + e[1].upper() for e in closed_agg.columns.tolist()])
     bureau_agg = bureau_agg.join(closed_agg, how='left')
-    del closed, closed_agg, bureau
-    gc.collect()
+
     return bureau_agg
 
 # Preprocess previous_applications.csv
-def previous_applications(num_rows = None, nan_as_category = True):
-    prev = pd.read_csv('../input/previous_application.csv', nrows = num_rows)
-    prev, cat_cols = one_hot_encoder(prev, nan_as_category= True)
+def previous_applications():
+    prev = pd.read_csv('../input/previous_application.csv')
+    prev, cat_cols = one_hot_encoder(prev)
     # Days 365.243 values -> nan
     prev['DAYS_FIRST_DRAWING'].replace(365243, np.nan, inplace= True)
     prev['DAYS_FIRST_DUE'].replace(365243, np.nan, inplace= True)
@@ -178,14 +172,13 @@ def previous_applications(num_rows = None, nan_as_category = True):
     refused_agg = refused.groupby('SK_ID_CURR').agg(num_aggregations)
     refused_agg.columns = pd.Index(['REFUSED_' + e[0] + "_" + e[1].upper() for e in refused_agg.columns.tolist()])
     prev_agg = prev_agg.join(refused_agg, how='left')
-    del refused, refused_agg, approved, approved_agg, prev
-    gc.collect()
+
     return prev_agg
 
 # Preprocess POS_CASH_balance.csv
-def pos_cash(num_rows = None, nan_as_category = True):
-    pos = pd.read_csv('../input/POS_CASH_balance.csv', nrows = num_rows)
-    pos, cat_cols = one_hot_encoder(pos, nan_as_category= True)
+def pos_cash():
+    pos = pd.read_csv('../input/POS_CASH_balance.csv')
+    pos, cat_cols = one_hot_encoder(pos)
     # Features
     aggregations = {
         'MONTHS_BALANCE': ['max', 'mean', 'size'],
@@ -199,14 +192,13 @@ def pos_cash(num_rows = None, nan_as_category = True):
     pos_agg.columns = pd.Index(['POS_' + e[0] + "_" + e[1].upper() for e in pos_agg.columns.tolist()])
     # Count pos cash accounts
     pos_agg['POS_COUNT'] = pos.groupby('SK_ID_CURR').size()
-    del pos
-    gc.collect()
+
     return pos_agg
     
 # Preprocess installments_payments.csv
-def installments_payments(num_rows = None, nan_as_category = True):
-    ins = pd.read_csv('../input/installments_payments.csv', nrows = num_rows)
-    ins, cat_cols = one_hot_encoder(ins, nan_as_category= True)
+def installments_payments():
+    ins = pd.read_csv('../input/installments_payments.csv')
+    ins, cat_cols = one_hot_encoder(ins)
     # Percentage and difference paid in each installment (amount paid and installment value)
     ins['PAYMENT_PERC'] = ins['AMT_PAYMENT'] / ins['AMT_INSTALMENT']
     ins['PAYMENT_DIFF'] = ins['AMT_INSTALMENT'] - ins['AMT_PAYMENT']
@@ -237,9 +229,9 @@ def installments_payments(num_rows = None, nan_as_category = True):
     return ins_agg
 
 # Preprocess credit_card_balance.csv
-def credit_card_balance(num_rows = None, nan_as_category = True):
-    cc = pd.read_csv('../input/credit_card_balance.csv', nrows = num_rows)
-    cc, cat_cols = one_hot_encoder(cc, nan_as_category= True)
+def credit_card_balance():
+    cc = pd.read_csv('../input/credit_card_balance.csv')
+    cc, cat_cols = one_hot_encoder(cc)
     # General aggregations
     cc.drop(['SK_ID_PREV'], axis= 1, inplace = True)
     cc_agg = cc.groupby('SK_ID_CURR').agg([ 'max', 'mean', 'sum', 'var'])
@@ -328,40 +320,41 @@ def display_importances(feature_importance_df_):
 
 
 def main(debug = False):
-    num_rows = 10000 if debug else None
-    df = application_train_test(num_rows)
+    df = application_train_test()
     with timer("Process bureau and bureau_balance"):
-        bureau = bureau_and_balance(num_rows)
+        bureau = bureau_and_balance()
         print("Bureau df shape:", bureau.shape)
         df = df.join(bureau, how='left', on='SK_ID_CURR')
         del bureau
         gc.collect()
     with timer("Process previous_applications"):
-        prev = previous_applications(num_rows)
+        prev = previous_applications()
         print("Previous applications df shape:", prev.shape)
         df = df.join(prev, how='left', on='SK_ID_CURR')
         del prev
         gc.collect()
     with timer("Process POS-CASH balance"):
-        pos = pos_cash(num_rows)
+        pos = pos_cash()
         print("Pos-cash balance df shape:", pos.shape)
         df = df.join(pos, how='left', on='SK_ID_CURR')
         del pos
         gc.collect()
     with timer("Process installments payments"):
-        ins = installments_payments(num_rows)
+        ins = installments_payments()
         print("Installments payments df shape:", ins.shape)
         df = df.join(ins, how='left', on='SK_ID_CURR')
         del ins
         gc.collect()
     with timer("Process credit card balance"):
-        cc = credit_card_balance(num_rows)
+        cc = credit_card_balance()
         print("Credit card balance df shape:", cc.shape)
         df = df.join(cc, how='left', on='SK_ID_CURR')
         del cc
         gc.collect()
+        """
     with timer("Run LightGBM with kfold"):
         feat_importance = kfold_lightgbm(df, num_folds= 5, stratified= False, debug= debug)
+        """
 
 if __name__ == "__main__":
     submission_file_name = "submission_kernel02.csv"
