@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 from scipy import stats
+import gc
 import GatherTables
 
 def one_hot_encoder(df):
@@ -90,8 +91,6 @@ def AllData_v4(reduce_mem=True):
     test.drop(['TARGET'], axis=1, inplace=True)    
     return(data, test, y)  
     
-    
-
 def ApplicationBuroBalance(reduce_mem=True):
 
     data = pd.read_csv('../input/application_train.csv')
@@ -472,37 +471,82 @@ def AllData(reduce_mem=True):
     return(data, test, y)
     
 def reduce_mem_usage(df):
-    for col in df.columns:
-        col_type = df[col].dtype
-    
     start_mem = df.memory_usage().sum() / 1024**2
     print('Memory usage of dataframe is {:.2f} MB'.format(start_mem))
-    
-    if col_type != object:
-        c_min = df[col].min()
-        c_max = df[col].max()
-        if str(col_type)[:3] == 'int':
-            if c_min > np.iinfo(np.int8).min and c_max < np.iinfo(np.int8).max:
-                df[col] = df[col].astype(np.int8)
-            elif c_min > np.iinfo(np.int16).min and c_max < np.iinfo(np.int16).max:
-                df[col] = df[col].astype(np.int16)
-            elif c_min > np.iinfo(np.int32).min and c_max < np.iinfo(np.int32).max:
-                df[col] = df[col].astype(np.int32)
-            elif c_min > np.iinfo(np.int64).min and c_max < np.iinfo(np.int64).max:
-                df[col] = df[col].astype(np.int64)  
-        else:
-            if c_min > np.finfo(np.float16).min and c_max < np.finfo(np.float16).max:
-                df[col] = df[col].astype(np.float16)
-            elif c_min > np.finfo(np.float32).min and c_max < np.finfo(np.float32).max:
-                df[col] = df[col].astype(np.float32)
+
+    for col in df.columns:
+        col_type = df[col].dtype    
+        if col_type != object:
+            c_min = df[col].min()
+            c_max = df[col].max()
+            if str(col_type)[:3] == 'int':
+                if c_min > np.iinfo(np.int8).min and c_max < np.iinfo(np.int8).max:
+                    df[col] = df[col].astype(np.int8)
+                elif c_min > np.iinfo(np.int16).min and c_max < np.iinfo(np.int16).max:
+                    df[col] = df[col].astype(np.int16)
+                elif c_min > np.iinfo(np.int32).min and c_max < np.iinfo(np.int32).max:
+                    df[col] = df[col].astype(np.int32)
+                elif c_min > np.iinfo(np.int64).min and c_max < np.iinfo(np.int64).max:
+                    df[col] = df[col].astype(np.int64)  
             else:
-                df[col] = df[col].astype(np.float64)
-    else:
-        df[col] = df[col].astype('category')
+                if c_min > np.finfo(np.float16).min and c_max < np.finfo(np.float16).max:
+                    df[col] = df[col].astype(np.float16)
+                elif c_min > np.finfo(np.float32).min and c_max < np.finfo(np.float32).max:
+                    df[col] = df[col].astype(np.float32)
+                else:
+                    df[col] = df[col].astype(np.float64)
+        else:
+            df[col] = df[col].astype('category')
         
     end_mem = df.memory_usage().sum() / 1024**2
     print('Memory usage after optimization is: {:.2f} MB'.format(end_mem))
     print('Decreased by {:.1f}%'.format(100 * (start_mem - end_mem) / start_mem))
     return df
 
+def AllData_v5(reduce_mem=True):
+    df = GatherTables.application_train_test()
+    with GatherTables.timer("Process bureau and bureau_balance"):
+        bureau = GatherTables.bureau_and_balance()
+        print("Bureau df shape:", bureau.shape)
+        df = df.join(bureau, how='left', on='SK_ID_CURR')
+        print("Current data shape:", df.shape)
+        del bureau
+        gc.collect()
+    with GatherTables.timer("Process previous_applications"):
+        prev = GatherTables.previous_applications()
+        print("Previous applications df shape:", prev.shape)
+        df = df.join(prev, how='left', on='SK_ID_CURR')
+        print("Current data shape:", df.shape)
+        del prev
+        gc.collect()
+    with GatherTables.timer("Process POS-CASH balance"):
+        pos = GatherTables.pos_cash()
+        print("Pos-cash balance df shape:", pos.shape)
+        df = df.join(pos, how='left', on='SK_ID_CURR')
+        print("Current data shape:", df.shape)
+        del pos
+        gc.collect()
+    with GatherTables.timer("Process installments payments"):
+        ins = GatherTables.installments_payments()
+        print("Installments payments df shape:", ins.shape)
+        df = df.join(ins, how='left', on='SK_ID_CURR')
+        print("Current data shape:", df.shape)
+        del ins
+        gc.collect()
+    with GatherTables.timer("Process credit card balance"):
+        cc = GatherTables.credit_card_balance()
+        print("Credit card balance df shape:", cc.shape)
+        df = df.join(cc, how='left', on='SK_ID_CURR')
+        print("Current data shape:", df.shape)
+        del cc
+        gc.collect()
+
+        df = one_hot_encoder(df)
+                                   
+    df.drop('SK_ID_CURR', axis=1, inplace=True)
     
+    data = df[df['TARGET'].notnull()]
+    test = df[df['TARGET'].isnull()]
+    y = data.pop('TARGET')
+    test.drop(['TARGET'], axis=1, inplace=True)    
+    return(data, test, y)  
