@@ -9,7 +9,7 @@ profile = Profiler()
 profile.Start()
 
 # Gather Data
-train_X, test_X, train_Y = Dataset.Load('AllData_v3')
+train_X, test_X, train_Y = Dataset.Load('AllData_v2')
 
 # Convert data to DMatrix
 cat_train = catb.Pool(train_X, train_Y)
@@ -31,7 +31,7 @@ cv_params = {
     "pool"          : cat_train,
     "iterations"    : 10000,
     "fold_count"    : 5,
-    "logging_level" : "Verbose"
+    "logging_level" : "Silent"
 }
 
 # Step 1
@@ -81,7 +81,7 @@ print('Time elapsed: %s mins' %str(profile.ElapsedMinutes))
 
 
 # Save CV process
-gs_summary.to_csv('../AllData_v3_CATBOOST_GS.csv')
+gs_summary.to_csv('../AllData_v2_CATBOOST_GS.csv')
 
 # Generate model by best iteration
 model   = catb.train(params=params,
@@ -90,7 +90,7 @@ model   = catb.train(params=params,
                      logging_level="Verbose")
 
 # Save model for possible coded ensemble
-model.save_model('../AllData_v3_CATBOOST_Model')
+model.save_model('../AllData_v2_CATBOOST_Model')
 
 # Generate train prediction for future ensemble
 train_preds = model.predict(train_X, prediction_type="Probability")
@@ -98,11 +98,11 @@ data = pd.read_csv('../input/application_train.csv')
 
 data['preds'] = train_preds[:,1]
 data = data[['SK_ID_CURR', 'preds']]
-data.to_csv('../AllData_v3_CATBOOST_TrainPreds.csv', index=False)
+data.to_csv('../AllData_v2_CATBOOST_TrainPreds.csv', index=False)
 
 # Generate sub prediction for Kaggle
 sub_preds = model.predict(test_X, prediction_type="Probability")
 sub = pd.read_csv('../input/sample_submission.csv')
 
 sub['TARGET'] = sub_preds[:,1]
-sub.to_csv('../AllData_v3_CATBOOST_Preds.csv', index=False)
+sub.to_csv('../AllData_v2₺_CATBOOST_Preds.csv', index=False)
