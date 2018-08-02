@@ -183,6 +183,50 @@ def handlePrev_v2(app_data):
 
     return prev_agg   
 
+def handlePrev_v4(app_data):
+    prev = pd.read_csv('../input/previous_application.csv')
+    prev, cat_cols = one_hot_encoder(prev)
+    # Days 365.243 values -> nan
+    prev['DAYS_FIRST_DRAWING'].replace(365243, np.nan, inplace= True)
+    prev['DAYS_FIRST_DUE'].replace(365243, np.nan, inplace= True)
+    prev['DAYS_LAST_DUE_1ST_VERSION'].replace(365243, np.nan, inplace= True)
+    prev['DAYS_LAST_DUE'].replace(365243, np.nan, inplace= True)
+    prev['DAYS_TERMINATION'].replace(365243, np.nan, inplace= True)
+    # Add feature: value ask / value received percentage
+    prev['APP_CREDIT_PERC'] = prev['AMT_APPLICATION'] / prev['AMT_CREDIT']
+    # Previous applications numeric features
+    num_aggregations = {
+        'AMT_ANNUITY'               : [ 'max', 'mean', 'min', 'sum', 'std'],
+        'AMT_APPLICATION'           : [ 'max', 'mean', 'min', 'sum', 'std'],
+        'AMT_CREDIT'                : [ 'max', 'mean', 'min', 'sum', 'std'],
+        'APP_CREDIT_PERC'           : [ 'max', 'mean', 'min', 'sum', 'std'],
+        'AMT_DOWN_PAYMENT'          : [ 'max', 'mean', 'min', 'sum', 'std'],
+        'AMT_GOODS_PRICE'           : [ 'max', 'mean', 'min', 'sum', 'std'],
+        'HOUR_APPR_PROCESS_START'   : [ 'max', 'mean', 'min', 'sum', 'std'],
+        'RATE_DOWN_PAYMENT'         : [ 'max', 'mean', 'min', 'sum', 'std'],
+        'DAYS_DECISION'             : [ 'max', 'mean', 'min', 'sum', 'std'],
+        'CNT_PAYMENT'               : [ 'max', 'mean', 'min', 'sum', 'std'],
+    }
+    # Previous applications categorical features
+    cat_aggregations = {}
+    for cat in cat_cols:
+        cat_aggregations[cat] = ['mean', 'sum']
+    
+    prev_agg = prev.groupby('SK_ID_CURR').agg({**num_aggregations, **cat_aggregations})
+    prev_agg.columns = pd.Index(['PREV_' + e[0] + "_" + e[1].upper() for e in prev_agg.columns.tolist()])
+    # Previous Applications: Approved Applications - only numerical features
+    approved = prev[prev['NAME_CONTRACT_STATUS_Approved'] == 1]
+    approved_agg = approved.groupby('SK_ID_CURR').agg({**num_aggregations, **cat_aggregations})
+    approved_agg.columns = pd.Index(['APPROVED_' + e[0] + "_" + e[1].upper() for e in approved_agg.columns.tolist()])
+    prev_agg = prev_agg.join(approved_agg, how='left')
+    # Previous Applications: Refused Applications - only numerical features
+    refused = prev[prev['NAME_CONTRACT_STATUS_Refused'] == 1]
+    refused_agg = refused.groupby('SK_ID_CURR').agg({**num_aggregations, **cat_aggregations})
+    refused_agg.columns = pd.Index(['REFUSED_' + e[0] + "_" + e[1].upper() for e in refused_agg.columns.tolist()])
+    prev_agg = prev_agg.join(refused_agg, how='left')
+
+    return prev_agg   
+
 def handleCreditCard(app_data):
     credit_card  = pd.read_csv('../input/credit_card_balance.csv')
     # Value Counts

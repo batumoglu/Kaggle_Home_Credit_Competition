@@ -74,7 +74,7 @@ def AllData_v4(reduce_mem=True):
     app_data, len_train = GatherTables.getAppData()
     app_data = GatherTables.generateAppFeatures_v4(app_data)
     
-    merged_df = GatherTables.handlePrev_v2(app_data)
+    merged_df = GatherTables.handlePrev_v4(app_data)
     merged_df = GatherTables.handleCreditCard_v2(merged_df)
     merged_df = GatherTables.handleBuro_v2(merged_df)
     merged_df = GatherTables.handleBuroBalance_v2(merged_df)
