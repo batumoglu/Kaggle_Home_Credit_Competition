@@ -94,7 +94,7 @@ print('Time elapsed: %s mins' %str(profile.ElapsedMinutes))
 
 
 # Save CV process
-gs_summary.to_csv('../AllData_v3_LGBM_GS.csv')
+gs_summary.to_csv('../AllData_v4_CC_LGBM_GS.csv')
 
 # Generate model by best iteration
 model   = lgb.train(params=params,
@@ -103,17 +103,17 @@ model   = lgb.train(params=params,
                     verbose_eval=1)
 
 # Save model for possible coded ensemble
-model.save_model('../AllData_v3_LGBM_Model', num_iteration=best_cv[1])
+model.save_model('../AllData_v4_CC_LGBM_GS', num_iteration=best_cv[1])
 
 # Generate train prediction for future ensemble
 train_preds = model.predict(train_X)
 data = pd.read_csv('../input/application_train.csv')
 data['preds'] = train_preds
 data = data[['SK_ID_CURR', 'preds']]
-data.to_csv('../AllData_v3_LGBM_TrainPreds.csv', index=False)
+data.to_csv('../AllData_v4_CC_LGBM_GS.csv', index=False)
 
 # Generate sub prediction for Kaggle
 sub_preds = model.predict(test_X)
 sub = pd.read_csv('../input/sample_submission.csv')
 sub['TARGET'] = sub_preds
-sub.to_csv('../AllData_v3_LGBM_Preds.csv', index=False)
+sub.to_csv('../AllData_v4_CC_LGBM_GS.csv', index=False)
