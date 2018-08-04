@@ -289,6 +289,54 @@ def handleCreditCard_v2(app_data):
     print('Shape after merging with credit card data = {}'.format(app_data.shape))
     return app_data
 
+def handleCreditCard_v4(app_data):
+    credit_card  = pd.read_csv('../input/credit_card_balance.csv')
+    idColumns = ['SK_ID_CURR', 'SK_ID_PREV']
+    cat_feats = [f for f in credit_card.columns if credit_card[f].dtype == 'object'] 
+    for f_ in cat_feats:
+        credit_card[f_], indexer = pd.factorize(credit_card[f_])
+    cat_feats = cat_feats + ['MONTHS_BALANCE']
+    nonNum_feats = idColumns + cat_feats    
+    num_feats = [f for f in credit_card.columns if f not in nonNum_feats]
+    
+    # Numeric Features
+    trans =  ['sum', 'mean', 'max', 'min']
+    aggs = {}
+    for feat in num_feats:
+        aggs[feat]=trans
+    aggs['SK_ID_CURR']='count'    
+    
+    cc_numeric_group = credit_card.groupby('SK_ID_CURR').agg(aggs)
+    cc_numeric_group.columns = [' '.join(col).strip() for col in cc_numeric_group.columns.values]
+    
+    for column in cc_numeric_group.columns:
+        cc_numeric_group = cc_numeric_group.rename(columns={column:'CC_'+column})
+        
+    app_data = app_data.merge(cc_numeric_group, left_on='SK_ID_CURR', right_index=True, 
+                               how='left', suffixes=['','_CC'])    
+    
+    # Categorical Features
+    trans = modeValue
+    aggs = {}
+    for feat in cat_feats:
+        aggs[feat]=trans
+                                 
+    cc_cat_group = credit_card.groupby('SK_ID_CURR').agg(aggs)
+
+    for column in cc_cat_group.columns:
+        cc_cat_group = cc_cat_group.rename(columns={column:'CC_'+column})
+                             
+    app_data = app_data.merge(cc_cat_group, left_on='SK_ID_CURR', right_index=True,
+                            how='left', suffixes=['', '_CCMODE'])
+    
+    # Last Features
+    most_recent_index = credit_card.groupby('SK_ID_CURR')['MONTHS_BALANCE'].idxmax()
+    app_data = app_data.merge(credit_card.loc[most_recent_index], on='SK_ID_CURR',
+                              how='left', suffixes=['','_CCLAST'])  
+
+    print('Shape after merging with credit card data = {}'.format(app_data.shape))
+    return app_data
+
 def handleBuro(app_data):
     buro = pd.read_csv('../input/bureau.csv')
     # Value Counts
