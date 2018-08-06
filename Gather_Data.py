@@ -18,7 +18,7 @@ def one_hot_encoder(df):
     categorical_columns = [col for col in df.columns if df[col].dtype == 'object']
     df = pd.get_dummies(df, columns= categorical_columns, dummy_na= True)
     new_columns = [c for c in df.columns if c not in original_columns]
-    return df
+    return df, new_columns
 
 def checkTrainTestConsistency(train, test):
     
@@ -81,7 +81,7 @@ def AllData_v4(reduce_mem=True):
     merged_df = GatherTables.handlePosCash_v2(merged_df)
     merged_df = GatherTables.handleInstallments_v2(merged_df)
     
-    merged_df = one_hot_encoder(merged_df)
+    merged_df,cat_cols = one_hot_encoder(merged_df)
                                    
     merged_df.drop('SK_ID_CURR', axis=1, inplace=True)
     
@@ -541,7 +541,7 @@ def AllData_v5(reduce_mem=True):
         del cc
         gc.collect()
 
-        df = one_hot_encoder(df)
+        df, new_columns = one_hot_encoder(df)
                                    
     df.drop('SK_ID_CURR', axis=1, inplace=True)
     
