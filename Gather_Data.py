@@ -8,7 +8,7 @@ Created on Mon May 28 19:51:12 2018
 
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler, LabelEncoder
+#from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 from scipy import stats
 import gc
 import GatherTables

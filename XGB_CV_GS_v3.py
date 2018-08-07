@@ -10,7 +10,7 @@ profile = Profiler()
 profile.Start()
 
 # Gather Data
-train_X, test_X, train_Y = Dataset.Load('ApplicationBuro')
+train_X, test_X, train_Y = Dataset.Load('AllData_v3')
 
 # Convert data to DMatrix
 dtrain = xgb.DMatrix(train_X, train_Y)
@@ -27,8 +27,9 @@ params = {'eta'                 :0.3,
           'lambda'              :1,
           'alpha'               :0,
           'scale_pos_weight'    :1,
-          'objective'           :'binary:logistic',
+          'objective'           :'gpu_binary:logistic',   # for cpu choose 'gpu_binary:logistic'
           'eval_metric'         :'auc',
+          'tree_method'         :'gpu_hist', # for cpu choose 'hist'
           'silent'              :1
 }
 
