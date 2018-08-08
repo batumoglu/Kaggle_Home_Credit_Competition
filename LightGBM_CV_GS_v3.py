@@ -110,10 +110,10 @@ train_preds = model.predict(train_X)
 data = pd.read_csv('../input/application_train.csv')
 data['preds'] = train_preds
 data = data[['SK_ID_CURR', 'preds']]
-data.to_csv('../AllData_v4_CC_LGBM_GS.csv', index=False)
+data.to_csv('../AllData_v4_CC_TrainPreds.csv', index=False)
 
 # Generate sub prediction for Kaggle
 sub_preds = model.predict(test_X)
 sub = pd.read_csv('../input/sample_submission.csv')
 sub['TARGET'] = sub_preds
-sub.to_csv('../AllData_v4_CC_LGBM_GS.csv', index=False)
+sub.to_csv('../AllData_v4_CC_LGBM_Preds.csv', index=False)
