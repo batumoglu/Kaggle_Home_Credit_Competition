@@ -8,7 +8,7 @@ Created on Mon May 28 19:51:12 2018
 
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler, LabelEncoder
+#from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 from scipy import stats
 import gc
 import GatherTables
@@ -18,7 +18,7 @@ def one_hot_encoder(df):
     categorical_columns = [col for col in df.columns if df[col].dtype == 'object']
     df = pd.get_dummies(df, columns= categorical_columns, dummy_na= True)
     new_columns = [c for c in df.columns if c not in original_columns]
-    return df
+    return df, new_columns
 
 def checkTrainTestConsistency(train, test):
     
@@ -74,14 +74,14 @@ def AllData_v4(reduce_mem=True):
     app_data, len_train = GatherTables.getAppData()
     app_data = GatherTables.generateAppFeatures_v4(app_data)
     
-    merged_df = GatherTables.handlePrev_v2(app_data)
-    merged_df = GatherTables.handleCreditCard_v2(merged_df)
-    merged_df = GatherTables.handleBuro_v2(merged_df)
+    merged_df = GatherTables.handlePrev_v4(app_data)
+    merged_df = GatherTables.handleCreditCard_v4(merged_df)
+    merged_df = GatherTables.handleBuro_v4(merged_df)
     merged_df = GatherTables.handleBuroBalance_v2(merged_df)
     merged_df = GatherTables.handlePosCash_v2(merged_df)
     merged_df = GatherTables.handleInstallments_v2(merged_df)
     
-    merged_df = one_hot_encoder(merged_df)
+    merged_df,cat_cols = one_hot_encoder(merged_df)
                                    
     merged_df.drop('SK_ID_CURR', axis=1, inplace=True)
     
@@ -541,7 +541,7 @@ def AllData_v5(reduce_mem=True):
         del cc
         gc.collect()
 
-        df = one_hot_encoder(df)
+        df, new_columns = one_hot_encoder(df)
                                    
     df.drop('SK_ID_CURR', axis=1, inplace=True)
     
